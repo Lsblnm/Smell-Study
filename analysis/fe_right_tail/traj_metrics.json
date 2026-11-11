@@ -1,0 +1,1070 @@
+{
+ "babel__babel-14532": {
+  "1|none": {
+   "recon": 38,
+   "tools": 73,
+   "tok": 2400801,
+   "elapsed": 878.5384683921002
+  },
+  "1|smell": {
+   "recon": 54,
+   "tools": 103,
+   "tok": 6372383,
+   "elapsed": 1724.689679831965
+  }
+ },
+ "gohugoio__hugo-12171": {
+  "1|none": {
+   "recon": 28,
+   "tools": 47,
+   "tok": 1226367,
+   "elapsed": 442.72358383680694
+  },
+  "1|smell": {
+   "recon": 24,
+   "tools": 37,
+   "tok": 721672,
+   "elapsed": 671.5401329970919
+  }
+ },
+ "fmtlib__fmt-1683": {
+  "1|none": {
+   "recon": 19,
+   "tools": 27,
+   "tok": 427993,
+   "elapsed": 176.7774458359927
+  },
+  "1|smell": {
+   "recon": 27,
+   "tools": 34,
+   "tok": 563508,
+   "elapsed": 239.35632529482245
+  }
+ },
+ "caddyserver__caddy-4774": {
+  "1|none": {
+   "recon": 27,
+   "tools": 38,
+   "tok": 460033,
+   "elapsed": 251.19661509408616
+  },
+  "1|smell": {
+   "recon": 28,
+   "tools": 47,
+   "tok": 830816,
+   "elapsed": 565.3858184618875
+  }
+ },
+ "php-cs-fixer__php-cs-fixer-7523": {
+  "1|none": {
+   "recon": 23,
+   "tools": 41,
+   "tok": 1002851,
+   "elapsed": 236.11067186295986
+  },
+  "1|smell": {
+   "recon": 26,
+   "tools": 52,
+   "tok": 1360307,
+   "elapsed": 515.6515287389047
+  }
+ },
+ "apache__druid-14092": {
+  "1|none": {
+   "recon": 29,
+   "tools": 44,
+   "tok": 975865,
+   "elapsed": 501.57114675897174
+  }
+ },
+ "mrdoob__three.js-26589": {
+  "1|none": {
+   "recon": 23,
+   "tools": 30,
+   "tok": 431915,
+   "elapsed": 145.00468430807814
+  },
+  "1|smell": {
+   "recon": 28,
+   "tools": 37,
+   "tok": 466439,
+   "elapsed": 475.36842643492855
+  }
+ },
+ "gin-gonic__gin-1805": {
+  "1|none": {
+   "recon": 20,
+   "tools": 30,
+   "tok": 292248,
+   "elapsed": 169.055054245051
+  },
+  "1|smell": {
+   "recon": 27,
+   "tools": 39,
+   "tok": 527650,
+   "elapsed": 619.5230761959683
+  }
+ },
+ "laravel__framework-48573": {
+  "1|none": {
+   "recon": 15,
+   "tools": 21,
+   "tok": 149114,
+   "elapsed": 99.69696449604817
+  },
+  "1|smell": {
+   "recon": 18,
+   "tools": 29,
+   "tok": 328651,
+   "elapsed": 394.8738563260995
+  }
+ },
+ "apache__lucene-12022": {
+  "1|none": {
+   "recon": 48,
+   "tools": 69,
+   "tok": 2751312,
+   "elapsed": 722.0677209419664
+  },
+  "1|smell": {
+   "recon": 44,
+   "tools": 64,
+   "tok": 3256458,
+   "elapsed": null
+  }
+ },
+ "jekyll__jekyll-8047": {
+  "1|none": {
+   "recon": 21,
+   "tools": 35,
+   "tok": 237844,
+   "elapsed": 170.2816240519751
+  },
+  "1|smell": {
+   "recon": 19,
+   "tools": 36,
+   "tok": 405516,
+   "elapsed": 260.5081675820984
+  }
+ },
+ "apache__lucene-12626": {
+  "1|none": {
+   "recon": 12,
+   "tools": 19,
+   "tok": 156467,
+   "elapsed": 1352.8762913669925
+  },
+  "1|smell": {
+   "recon": 18,
+   "tools": 24,
+   "tok": 229002,
+   "elapsed": null
+  }
+ },
+ "projectlombok__lombok-3602": {
+  "1|none": {
+   "recon": 21,
+   "tools": 29,
+   "tok": 370524,
+   "elapsed": 166.58829707396217
+  },
+  "1|smell": {
+   "recon": 18,
+   "tools": 29,
+   "tok": 440450,
+   "elapsed": 201.8576085199602
+  }
+ },
+ "caddyserver__caddy-4943": {
+  "1|none": {
+   "recon": 21,
+   "tools": 33,
+   "tok": 668442,
+   "elapsed": 1526.8061055450235
+  },
+  "1|smell": {
+   "recon": 26,
+   "tools": 35,
+   "tok": 587080,
+   "elapsed": 406.50770406005904
+  }
+ },
+ "projectlombok__lombok-3697": {
+  "1|none": {
+   "recon": 49,
+   "tools": 58,
+   "tok": 1627689,
+   "elapsed": 392.6719469288364
+  },
+  "1|smell": {
+   "recon": 37,
+   "tools": 48,
+   "tok": 1510622,
+   "elapsed": 294.9885119970422
+  }
+ },
+ "immutable-js__immutable-js-2006": {
+  "1|none": {
+   "recon": 30,
+   "tools": 58,
+   "tok": 1214102,
+   "elapsed": 434.52866187598556
+  },
+  "1|smell": {
+   "recon": 31,
+   "tools": 49,
+   "tok": 706905,
+   "elapsed": 329.06432950589806
+  }
+ },
+ "fastlane__fastlane-19207": {
+  "1|none": {
+   "recon": 28,
+   "tools": 43,
+   "tok": 1137167,
+   "elapsed": 1297.572950032074
+  },
+  "1|smell": {
+   "recon": 20,
+   "tools": 28,
+   "tok": 832822,
+   "elapsed": 523.7612407049164
+  }
+ },
+ "jordansissel__fpm-1850": {
+  "1|none": {
+   "recon": 19,
+   "tools": 34,
+   "tok": 396235,
+   "elapsed": 151.79723924817517
+  },
+  "1|smell": {
+   "recon": 18,
+   "tools": 28,
+   "tok": 347171,
+   "elapsed": 406.38891621795483
+  }
+ },
+ "fluent__fluentd-3328": {
+  "1|none": {
+   "recon": 40,
+   "tools": 62,
+   "tok": 1314499,
+   "elapsed": 595.635589822894
+  },
+  "1|smell": {
+   "recon": 32,
+   "tools": 42,
+   "tok": 680009,
+   "elapsed": 514.4001109160017
+  }
+ },
+ "astral-sh__ruff-15309": {
+  "1|none": {
+   "recon": 42,
+   "tools": 69,
+   "tok": 1544059,
+   "elapsed": 401.94357108999975
+  },
+  "1|smell": {
+   "recon": 36,
+   "tools": 62,
+   "tok": 1651831,
+   "elapsed": 471.555368158035
+  }
+ },
+ "immutable-js__immutable-js-2005": {
+  "1|none": {
+   "recon": 39,
+   "tools": 59,
+   "tok": 1300399,
+   "elapsed": 333.646656709956
+  },
+  "1|smell": {
+   "recon": 29,
+   "tools": 44,
+   "tok": 646789,
+   "elapsed": 391.6791299490724
+  }
+ },
+ "briannesbitt__carbon-2752": {
+  "1|none": {
+   "recon": 12,
+   "tools": 26,
+   "tok": 313893,
+   "elapsed": 875.7808608089108
+  },
+  "1|smell": {
+   "recon": 17,
+   "tools": 27,
+   "tok": 264134,
+   "elapsed": 466.6970635210164
+  }
+ },
+ "fluent__fluentd-3466": {
+  "1|none": {
+   "recon": 27,
+   "tools": 41,
+   "tok": 727716,
+   "elapsed": 1102.0457107948605
+  },
+  "1|smell": {
+   "recon": 28,
+   "tools": 50,
+   "tok": 1643751,
+   "elapsed": 819.4182409450877
+  }
+ },
+ "apache__lucene-13170": {
+  "1|none": {
+   "recon": 9,
+   "tools": 22,
+   "tok": 273248,
+   "elapsed": 1151.4026242489927
+  },
+  "1|smell": {
+   "recon": 13,
+   "tools": 19,
+   "tok": 156104,
+   "elapsed": null
+  }
+ },
+ "google__gson-2024": {
+  "1|none": {
+   "recon": 9,
+   "tools": 16,
+   "tok": 194417,
+   "elapsed": 185.4735199189745
+  },
+  "1|smell": {
+   "recon": 10,
+   "tools": 16,
+   "tok": 181282,
+   "elapsed": 335.92648205300793
+  }
+ },
+ "google__gson-2311": {
+  "1|none": {
+   "recon": 14,
+   "tools": 23,
+   "tok": 296735,
+   "elapsed": 221.5229769849684
+  },
+  "1|smell": {
+   "recon": 16,
+   "tools": 28,
+   "tok": 372035,
+   "elapsed": 385.80906936409883
+  }
+ },
+ "jekyll__jekyll-8167": {
+  "1|none": {
+   "recon": 12,
+   "tools": 22,
+   "tok": 249482,
+   "elapsed": 149.67792088910937
+  },
+  "1|smell": {
+   "recon": 11,
+   "tools": 19,
+   "tok": 209772,
+   "elapsed": 178.00880938605405
+  }
+ },
+ "google__gson-2158": {
+  "1|none": {
+   "recon": 16,
+   "tools": 24,
+   "tok": 362503,
+   "elapsed": 195.04055035393685
+  },
+  "1|smell": {
+   "recon": 21,
+   "tools": 32,
+   "tok": 649904,
+   "elapsed": 387.7915681579616
+  }
+ },
+ "phpoffice__phpspreadsheet-3463": {
+  "1|none": {
+   "recon": 13,
+   "tools": 22,
+   "tok": 221302,
+   "elapsed": 118.30864162603393
+  },
+  "1|smell": {
+   "recon": 11,
+   "tools": 18,
+   "tok": 151837,
+   "elapsed": 168.95702504296787
+  }
+ },
+ "uutils__coreutils-6377": {
+  "1|none": {
+   "recon": 20,
+   "tools": 36,
+   "tok": 1139986,
+   "elapsed": 408.01466967817396
+  },
+  "1|smell": {
+   "recon": 30,
+   "tools": 50,
+   "tok": 1044303,
+   "elapsed": 359.29680759483017
+  }
+ },
+ "valkey-io__valkey-1499": {
+  "1|none": {
+   "recon": 36,
+   "tools": 47,
+   "tok": 1294031,
+   "elapsed": 385.71788830589503
+  },
+  "1|smell": {
+   "recon": 30,
+   "tools": 47,
+   "tok": 1193086,
+   "elapsed": 451.26057788403705
+  }
+ },
+ "apache__lucene-12212": {
+  "1|none": {
+   "recon": 11,
+   "tools": 25,
+   "tok": 592906,
+   "elapsed": 1555.5387313461397
+  },
+  "1|smell": {
+   "recon": 14,
+   "tools": 21,
+   "tok": 209554,
+   "elapsed": null
+  }
+ },
+ "fmtlib__fmt-2310": {
+  "1|none": {
+   "recon": 25,
+   "tools": 39,
+   "tok": 733124,
+   "elapsed": 289.9870938649401
+  },
+  "1|smell": {
+   "recon": 24,
+   "tools": 35,
+   "tok": 759581,
+   "elapsed": 391.92429734091274
+  }
+ },
+ "tokio-rs__axum-1119": {
+  "1|none": {
+   "recon": 25,
+   "tools": 35,
+   "tok": 483020,
+   "elapsed": 285.05871829902753
+  },
+  "1|smell": {
+   "recon": 33,
+   "tools": 43,
+   "tok": 476835,
+   "elapsed": 195.730580806965
+  }
+ },
+ "apache__druid-13704": {
+  "1|none": {
+   "recon": 14,
+   "tools": 22,
+   "tok": 329416,
+   "elapsed": 968.6237532789819
+  }
+ },
+ "mrdoob__three.js-25687": {
+  "1|none": {
+   "recon": 31,
+   "tools": 38,
+   "tok": 385958,
+   "elapsed": 145.29013733705506
+  },
+  "1|smell": {
+   "recon": 26,
+   "tools": 50,
+   "tok": 749928,
+   "elapsed": 647.8577782460488
+  }
+ },
+ "fastlane__fastlane-19304": {
+  "1|none": {
+   "recon": 15,
+   "tools": 24,
+   "tok": 276739,
+   "elapsed": 817.3708582699765
+  },
+  "1|smell": {
+   "recon": 21,
+   "tools": 29,
+   "tok": 381292,
+   "elapsed": 360.59767710603774
+  }
+ },
+ "google__gson-2061": {
+  "1|none": {
+   "recon": 9,
+   "tools": 17,
+   "tok": 177872,
+   "elapsed": 114.31907366914675
+  },
+  "1|smell": {
+   "recon": 10,
+   "tools": 20,
+   "tok": 277177,
+   "elapsed": 305.44117750087753
+  }
+ },
+ "apache__lucene-11760": {
+  "1|none": {
+   "recon": 21,
+   "tools": 35,
+   "tok": 496985,
+   "elapsed": 1303.753384414129
+  },
+  "1|smell": {
+   "recon": 29,
+   "tools": 39,
+   "tok": 461320,
+   "elapsed": null
+  }
+ },
+ "faker-ruby__faker-2705": {
+  "1|none": {
+   "recon": 18,
+   "tools": 50,
+   "tok": 1467873,
+   "elapsed": 1366.1998441182077
+  },
+  "1|smell": {
+   "recon": 22,
+   "tools": 35,
+   "tok": 667791,
+   "elapsed": 365.20357727911323
+  }
+ },
+ "gin-gonic__gin-1957": {
+  "1|none": {
+   "recon": 26,
+   "tools": 44,
+   "tok": 815292,
+   "elapsed": 440.3947603220586
+  },
+  "1|smell": {
+   "recon": 36,
+   "tools": 48,
+   "tok": 759665,
+   "elapsed": 719.1538948379457
+  }
+ },
+ "google__gson-1100": {
+  "1|none": {
+   "recon": 15,
+   "tools": 28,
+   "tok": 531369,
+   "elapsed": 205.35175170912407
+  },
+  "1|smell": {
+   "recon": 20,
+   "tools": 28,
+   "tok": 418398,
+   "elapsed": 226.55153192882426
+  }
+ },
+ "faker-ruby__faker-2970": {
+  "1|none": {
+   "recon": 12,
+   "tools": 21,
+   "tok": 182417,
+   "elapsed": 765.860562316142
+  },
+  "1|smell": {
+   "recon": 16,
+   "tools": 24,
+   "tok": 267260,
+   "elapsed": 352.209956463892
+  }
+ },
+ "prometheus__prometheus-10633": {
+  "1|none": {
+   "recon": 14,
+   "tools": 23,
+   "tok": 195059,
+   "elapsed": 250.89681836613454
+  },
+  "1|smell": {
+   "recon": 11,
+   "tools": 21,
+   "tok": 219691,
+   "elapsed": 167.02481193398125
+  }
+ },
+ "google__gson-1014": {
+  "1|none": {
+   "recon": 12,
+   "tools": 22,
+   "tok": 282171,
+   "elapsed": 158.64358039014041
+  },
+  "1|smell": {
+   "recon": 15,
+   "tools": 23,
+   "tok": 275784,
+   "elapsed": 342.1002941019833
+  }
+ },
+ "axios__axios-4731": {
+  "1|none": {
+   "recon": 29,
+   "tools": 38,
+   "tok": 376056,
+   "elapsed": 231.06882440811023
+  },
+  "1|smell": {
+   "recon": 20,
+   "tools": 29,
+   "tok": 303350,
+   "elapsed": 406.7741672510747
+  }
+ },
+ "google__gson-2479": {
+  "1|none": {
+   "recon": 34,
+   "tools": 57,
+   "tok": 1940958,
+   "elapsed": 482.317727481015
+  },
+  "1|smell": {
+   "recon": 23,
+   "tools": 46,
+   "tok": 1308583,
+   "elapsed": 546.8631861628965
+  }
+ },
+ "jqlang__jq-2235": {
+  "1|none": {
+   "recon": 28,
+   "tools": 41,
+   "tok": 728122,
+   "elapsed": 205.2105013038963
+  },
+  "1|smell": {
+   "recon": 41,
+   "tools": 75,
+   "tok": 1612116,
+   "elapsed": 710.4097371229436
+  }
+ },
+ "google__gson-1093": {
+  "1|none": {
+   "recon": 13,
+   "tools": 25,
+   "tok": 323154,
+   "elapsed": 574.1678544939496
+  },
+  "1|smell": {
+   "recon": 10,
+   "tools": 16,
+   "tok": 165755,
+   "elapsed": 198.5675231369678
+  }
+ },
+ "projectlombok__lombok-3326": {
+  "1|none": {
+   "recon": 31,
+   "tools": 40,
+   "tok": 778122,
+   "elapsed": 323.90147365583107
+  },
+  "1|smell": {
+   "recon": 45,
+   "tools": 58,
+   "tok": 1184550,
+   "elapsed": 364.4270321028307
+  }
+ },
+ "jqlang__jq-2598": {
+  "1|none": {
+   "recon": 20,
+   "tools": 33,
+   "tok": 449916,
+   "elapsed": 171.07482221000828
+  },
+  "1|smell": {
+   "recon": 14,
+   "tools": 25,
+   "tok": 323458,
+   "elapsed": 393.04336514906026
+  }
+ },
+ "redis__redis-10068": {
+  "1|none": {
+   "recon": 21,
+   "tools": 28,
+   "tok": 395500,
+   "elapsed": 284.90655558905564
+  },
+  "1|smell": {
+   "recon": 14,
+   "tools": 21,
+   "tok": 279930,
+   "elapsed": 151.96012571500614
+  }
+ },
+ "javaparser__javaparser-4561": {
+  "1|none": {
+   "recon": 25,
+   "tools": 34,
+   "tok": 780604,
+   "elapsed": 253.4239931718912
+  },
+  "1|smell": {
+   "recon": 17,
+   "tools": 27,
+   "tok": 681854,
+   "elapsed": 336.6067367182113
+  }
+ },
+ "rubocop__rubocop-13362": {
+  "1|none": {
+   "recon": 22,
+   "tools": 48,
+   "tok": 528742,
+   "elapsed": 661.2709132779855
+  },
+  "1|smell": {
+   "recon": 25,
+   "tools": 54,
+   "tok": 678166,
+   "elapsed": 412.18249427503906
+  }
+ },
+ "nlohmann__json-4237": {
+  "1|none": {
+   "recon": 20,
+   "tools": 34,
+   "tok": 621156,
+   "elapsed": 352.03170079900883
+  },
+  "1|smell": {
+   "recon": 37,
+   "tools": 57,
+   "tok": 1589064,
+   "elapsed": 1088.8350528359879
+  }
+ },
+ "preactjs__preact-2896": {
+  "1|none": {
+   "recon": 37,
+   "tools": 54,
+   "tok": 789517,
+   "elapsed": 310.6309846388176
+  },
+  "1|smell": {
+   "recon": 33,
+   "tools": 44,
+   "tok": 613370,
+   "elapsed": 223.02116688992828
+  }
+ },
+ "google__gson-2134": {
+  "1|none": {
+   "recon": 13,
+   "tools": 19,
+   "tok": 229013,
+   "elapsed": 133.24677749397233
+  },
+  "1|smell": {
+   "recon": 11,
+   "tools": 19,
+   "tok": 214728,
+   "elapsed": 298.5508962131571
+  }
+ },
+ "hashicorp__terraform-34580": {
+  "1|none": {
+   "recon": 14,
+   "tools": 23,
+   "tok": 320918,
+   "elapsed": 275.21464955294505
+  },
+  "1|smell": {
+   "recon": 19,
+   "tools": 30,
+   "tok": 460568,
+   "elapsed": 558.898881072877
+  }
+ },
+ "tokio-rs__tokio-4384": {
+  "1|none": {
+   "recon": 18,
+   "tools": 35,
+   "tok": 696740,
+   "elapsed": 504.9995420521591
+  },
+  "1|smell": {
+   "recon": 26,
+   "tools": 39,
+   "tok": 947231,
+   "elapsed": 191.3439187509939
+  }
+ },
+ "burntsushi__ripgrep-2576": {
+  "1|none": {
+   "recon": 26,
+   "tools": 51,
+   "tok": 856794,
+   "elapsed": 1076.344791925978
+  },
+  "1|smell": {
+   "recon": 28,
+   "tools": 35,
+   "tok": 348810,
+   "elapsed": 283.9538381029852
+  }
+ },
+ "facebook__docusaurus-10130": {
+  "1|none": {
+   "recon": 14,
+   "tools": 30,
+   "tok": 522962,
+   "elapsed": 1055.9665871390607
+  },
+  "1|smell": {
+   "recon": 15,
+   "tools": 24,
+   "tok": 355384,
+   "elapsed": 847.1407425180078
+  }
+ },
+ "gohugoio__hugo-12204": {
+  "1|none": {
+   "recon": 55,
+   "tools": 70,
+   "tok": 1498274,
+   "elapsed": 513.0715137349907
+  },
+  "1|smell": {
+   "recon": 31,
+   "tools": 48,
+   "tok": 687463,
+   "elapsed": 618.6907046488486
+  }
+ },
+ "apache__lucene-12196": {
+  "1|none": {
+   "recon": 11,
+   "tools": 28,
+   "tok": 485223,
+   "elapsed": 1082.038826545002
+  },
+  "1|smell": {
+   "recon": 20,
+   "tools": 28,
+   "tok": 343697,
+   "elapsed": null
+  }
+ },
+ "reactivex__rxjava-7597": {
+  "1|none": {
+   "recon": 31,
+   "tools": 37,
+   "tok": 511828,
+   "elapsed": 343.3103208341636
+  },
+  "1|smell": {
+   "recon": 25,
+   "tools": 32,
+   "tok": 412798,
+   "elapsed": 191.80099579016678
+  }
+ },
+ "nushell__nushell-12950": {
+  "1|none": {
+   "recon": 22,
+   "tools": 34,
+   "tok": 553158,
+   "elapsed": 170.1375989911612
+  },
+  "1|smell": {
+   "recon": 22,
+   "tools": 33,
+   "tok": 382772,
+   "elapsed": 230.03769892686978
+  }
+ },
+ "axios__axios-4738": {
+  "1|none": {
+   "recon": 14,
+   "tools": 25,
+   "tok": 202912,
+   "elapsed": 949.4632227008697
+  },
+  "1|smell": {
+   "recon": 17,
+   "tools": 26,
+   "tok": 196224,
+   "elapsed": 484.8792080429848
+  }
+ },
+ "apache__druid-16875": {
+  "1|none": {
+   "recon": 17,
+   "tools": 26,
+   "tok": 318981,
+   "elapsed": 1332.0577989441808
+  }
+ },
+ "vuejs__core-11589": {
+  "1|none": {
+   "recon": 35,
+   "tools": 52,
+   "tok": 1015408,
+   "elapsed": 435.30066833808087
+  },
+  "1|smell": {
+   "recon": 36,
+   "tools": 51,
+   "tok": 1343775,
+   "elapsed": 724.5736208788585
+  }
+ },
+ "facebook__docusaurus-10309": {
+  "1|none": {
+   "recon": 20,
+   "tools": 43,
+   "tok": 738453,
+   "elapsed": 1114.6121434587985
+  },
+  "1|smell": {
+   "recon": 22,
+   "tools": 31,
+   "tok": 337104,
+   "elapsed": 986.093907549046
+  }
+ },
+ "apache__lucene-13301": {
+  "1|none": {
+   "recon": 12,
+   "tools": 18,
+   "tok": 153209,
+   "elapsed": 991.3881024429575
+  },
+  "1|smell": {
+   "recon": 16,
+   "tools": 22,
+   "tok": 181225,
+   "elapsed": 177.22021246212535
+  }
+ },
+ "briannesbitt__carbon-2665": {
+  "1|none": {
+   "recon": 14,
+   "tools": 24,
+   "tok": 328873,
+   "elapsed": 886.9935064068995
+  },
+  "1|smell": {
+   "recon": 32,
+   "tools": 50,
+   "tok": 994964,
+   "elapsed": 293.1133288850542
+  }
+ },
+ "javaparser__javaparser-4538": {
+  "1|none": {
+   "recon": 18,
+   "tools": 29,
+   "tok": 671216,
+   "elapsed": 303.2577897820156
+  },
+  "1|smell": {
+   "recon": 14,
+   "tools": 21,
+   "tok": 426287,
+   "elapsed": 286.1191831759643
+  }
+ },
+ "php-cs-fixer__php-cs-fixer-7635": {
+  "1|none": {
+   "recon": 17,
+   "tools": 33,
+   "tok": 495978,
+   "elapsed": 246.5600651691202
+  },
+  "1|smell": {
+   "recon": 28,
+   "tools": 51,
+   "tok": 1130250,
+   "elapsed": 385.9204896329902
+  }
+ },
+ "apache__druid-15402": {
+  "1|none": {
+   "recon": 23,
+   "tools": 30,
+   "tok": 486660,
+   "elapsed": 255.50971990800463
+  }
+ },
+ "preactjs__preact-2757": {
+  "1|none": {
+   "recon": 17,
+   "tools": 29,
+   "tok": 352861,
+   "elapsed": 211.86531845317222
+  },
+  "1|smell": {
+   "recon": 18,
+   "tools": 28,
+   "tok": 324655,
+   "elapsed": 201.18800842901692
+  }
+ },
+ "babel__babel-13928": {
+  "1|none": {
+   "recon": 66,
+   "tools": 107,
+   "tok": 5499492,
+   "elapsed": 1115.3896367279813
+  },
+  "1|smell": {
+   "recon": 74,
+   "tools": 111,
+   "tok": 5087658,
+   "elapsed": 1379.286315862788
+  }
+ },
+ "nushell__nushell-12901": {
+  "1|none": {
+   "recon": 28,
+   "tools": 37,
+   "tok": 654794,
+   "elapsed": 190.0563249879051
+  },
+  "1|smell": {
+   "recon": 40,
+   "tools": 50,
+   "tok": 1041716,
+   "elapsed": 465.65269109094515
+  }
+ },
+ "astral-sh__ruff-15330": {
+  "1|none": {
+   "recon": 28,
+   "tools": 42,
+   "tok": 752644,
+   "elapsed": 1298.9694942210335
+  },
+  "1|smell": {
+   "recon": 28,
+   "tools": 39,
+   "tok": 383926,
+   "elapsed": 541.1959496550262
+  }
+ }
+}

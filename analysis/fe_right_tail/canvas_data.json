@@ -1,0 +1,1466 @@
+{
+ "group": [
+  {
+   "metric": "del_ratio",
+   "name": "纯迁移比 del/(add+del)",
+   "meanT": 0.459,
+   "meanR": 0.33,
+   "medT": 0.483,
+   "medR": 0.35,
+   "delta": 0.647,
+   "p": 0.0092,
+   "q": 0.207
+  },
+  {
+   "metric": "patch_del",
+   "name": "源位置删除行数 (patch_del)",
+   "meanT": 61.5,
+   "meanR": 33.324,
+   "medT": 61.5,
+   "medR": 24.0,
+   "delta": 0.635,
+   "p": 0.0106,
+   "q": 0.207
+  },
+  {
+   "metric": "del_max_one_file",
+   "name": "单文件最大删除行数",
+   "meanT": 53.5,
+   "meanR": 27.721,
+   "medT": 54.5,
+   "medR": 19.5,
+   "delta": 0.586,
+   "p": 0.0184,
+   "q": 0.239
+  },
+  {
+   "metric": "fanout_source_file",
+   "name": "来源文件扇出 (import 数)",
+   "meanT": 16.0,
+   "meanR": 12.833,
+   "medT": 14.0,
+   "medR": 5.5,
+   "delta": 0.396,
+   "p": 0.1108,
+   "q": 0.758
+  },
+  {
+   "metric": "patch_churn",
+   "name": "补丁总变更行 (churn)",
+   "meanT": 138.0,
+   "meanR": 100.235,
+   "medT": 147.5,
+   "medR": 74.5,
+   "delta": 0.355,
+   "p": 0.1539,
+   "q": 0.758
+  },
+  {
+   "metric": "dir_distance",
+   "name": "源/目标目录距离",
+   "meanT": 0.667,
+   "meanR": 1.471,
+   "medT": 0.0,
+   "medR": 1.0,
+   "delta": -0.326,
+   "p": 0.164,
+   "q": 0.758
+  },
+  {
+   "metric": "loc_touched_sum",
+   "name": "受影响文件 LOC 合计",
+   "meanT": 6276.167,
+   "meanR": 1581.868,
+   "medT": 1208.0,
+   "medR": 990.0,
+   "delta": 0.343,
+   "p": 0.1687,
+   "q": 0.758
+  },
+  {
+   "metric": "import_fanin_source",
+   "name": "来源文件 import 扇入",
+   "meanT": 38.667,
+   "meanR": 28.412,
+   "medT": 5.5,
+   "medR": 2.5,
+   "delta": 0.336,
+   "p": 0.1736,
+   "q": 0.758
+  },
+  {
+   "metric": "loc_touched_max",
+   "name": "受影响文件最大 LOC",
+   "meanT": 5082.667,
+   "meanR": 1034.794,
+   "medT": 948.0,
+   "medR": 608.5,
+   "delta": 0.338,
+   "p": 0.1749,
+   "q": 0.758
+  },
+  {
+   "metric": "fanin_method_refs_sum",
+   "name": "方法名引用总次数",
+   "meanT": 145.5,
+   "meanR": 434.97,
+   "medT": 109.0,
+   "medR": 29.0,
+   "delta": 0.321,
+   "p": 0.1973,
+   "q": 0.769
+  },
+  {
+   "metric": "fanin_method_files_max",
+   "name": "方法名引用文件数",
+   "meanT": 37.333,
+   "meanR": 59.0,
+   "medT": 13.5,
+   "medR": 5.0,
+   "delta": 0.284,
+   "p": 0.2541,
+   "q": 0.817
+  },
+  {
+   "metric": "fanout_target_file",
+   "name": "目标文件扇出 (import 数)",
+   "meanT": 12.833,
+   "meanR": 10.515,
+   "medT": 14.0,
+   "medR": 5.0,
+   "delta": 0.27,
+   "p": 0.2778,
+   "q": 0.817
+  },
+  {
+   "metric": "nom_source",
+   "name": "来源文件方法数 (NOM)",
+   "meanT": 42.833,
+   "meanR": 51.235,
+   "medT": 30.5,
+   "medR": 16.0,
+   "delta": 0.225,
+   "p": 0.3671,
+   "q": 0.817
+  },
+  {
+   "metric": "callsites_out_max",
+   "name": "迁移方法外部调用点 (max)",
+   "meanT": 5.833,
+   "meanR": 17.265,
+   "medT": 3.5,
+   "medR": 0.0,
+   "delta": 0.203,
+   "p": 0.3793,
+   "q": 0.817
+  },
+  {
+   "metric": "patch_add",
+   "name": "新增行数",
+   "meanT": 76.5,
+   "meanR": 66.912,
+   "medT": 78.0,
+   "medR": 53.5,
+   "delta": 0.194,
+   "p": 0.4398,
+   "q": 0.817
+  },
+  {
+   "metric": "callsites_out_sum",
+   "name": "迁移方法外部调用点 (sum)",
+   "meanT": 7.167,
+   "meanR": 18.882,
+   "medT": 3.5,
+   "medR": 0.0,
+   "delta": 0.179,
+   "p": 0.4402,
+   "q": 0.817
+  },
+  {
+   "metric": "loc_source",
+   "name": "来源文件 LOC",
+   "meanT": 894.667,
+   "meanR": 775.697,
+   "medT": 451.0,
+   "medR": 438.0,
+   "delta": 0.187,
+   "p": 0.4571,
+   "q": 0.817
+  },
+  {
+   "metric": "moved_loc",
+   "name": "迁移代码 LOC",
+   "meanT": 61.5,
+   "meanR": 55.544,
+   "medT": 68.0,
+   "medR": 47.5,
+   "delta": 0.186,
+   "p": 0.4576,
+   "q": 0.817
+  },
+  {
+   "metric": "test_refs_target",
+   "name": "目标文件被测试引用数",
+   "meanT": 4.833,
+   "meanR": 24.353,
+   "medT": 5.0,
+   "medR": 1.5,
+   "delta": 0.179,
+   "p": 0.4692,
+   "q": 0.817
+  },
+  {
+   "metric": "cc_moved",
+   "name": "迁移代码圈复杂度",
+   "meanT": 12.667,
+   "meanR": 9.647,
+   "medT": 12.0,
+   "medR": 8.0,
+   "delta": 0.176,
+   "p": 0.4812,
+   "q": 0.817
+  },
+  {
+   "metric": "repo_loc",
+   "name": "仓库总 LOC",
+   "meanT": 193576.667,
+   "meanR": 253748.074,
+   "medT": 188464.0,
+   "medR": 141236.0,
+   "delta": 0.172,
+   "p": 0.4945,
+   "q": 0.817
+  },
+  {
+   "metric": "target_depth",
+   "name": "目标文件目录深度",
+   "meanT": 3.0,
+   "meanR": 4.294,
+   "medT": 3.0,
+   "medR": 3.5,
+   "delta": -0.162,
+   "p": 0.5149,
+   "q": 0.817
+  },
+  {
+   "metric": "fanin_target_file",
+   "name": "目标文件扇入 (引用文件数)",
+   "meanT": 18.0,
+   "meanR": 65.836,
+   "medT": 13.0,
+   "medR": 7.0,
+   "delta": 0.162,
+   "p": 0.5193,
+   "q": 0.817
+  },
+  {
+   "metric": "patch_hunks",
+   "name": "补丁 hunk 数",
+   "meanT": 5.5,
+   "meanR": 5.544,
+   "medT": 5.5,
+   "medR": 5.0,
+   "delta": 0.159,
+   "p": 0.5205,
+   "q": 0.817
+  },
+  {
+   "metric": "n_source_files",
+   "name": "来源文件数",
+   "meanT": 1.167,
+   "meanR": 1.412,
+   "medT": 1.0,
+   "medR": 1.0,
+   "delta": -0.127,
+   "p": 0.5364,
+   "q": 0.817
+  },
+  {
+   "metric": "import_fanin_target",
+   "name": "目标文件 import 扇入",
+   "meanT": 6.5,
+   "meanR": 14.221,
+   "medT": 2.5,
+   "medR": 1.0,
+   "delta": 0.145,
+   "p": 0.5517,
+   "q": 0.817
+  },
+  {
+   "metric": "loc_target",
+   "name": "目标文件 LOC",
+   "meanT": 619.833,
+   "meanR": 683.647,
+   "medT": 577.0,
+   "medR": 468.5,
+   "delta": 0.145,
+   "p": 0.5658,
+   "q": 0.817
+  },
+  {
+   "metric": "nom_target",
+   "name": "目标文件方法数 (NOM)",
+   "meanT": 31.0,
+   "meanR": 39.721,
+   "medT": 23.5,
+   "medR": 21.0,
+   "delta": 0.118,
+   "p": 0.6413,
+   "q": 0.893
+  },
+  {
+   "metric": "nesting_moved",
+   "name": "迁移代码最大嵌套",
+   "meanT": 6.167,
+   "meanR": 6.265,
+   "medT": 5.5,
+   "medR": 5.0,
+   "delta": 0.1,
+   "p": 0.6902,
+   "q": 0.928
+  },
+  {
+   "metric": "patch_files",
+   "name": "补丁涉及文件数",
+   "meanT": 2.5,
+   "meanR": 2.441,
+   "medT": 2.5,
+   "medR": 2.0,
+   "delta": 0.074,
+   "p": 0.7587,
+   "q": 0.96
+  },
+  {
+   "metric": "repo_src_files",
+   "name": "仓库源文件数",
+   "meanT": 1096.667,
+   "meanR": 1311.691,
+   "medT": 803.0,
+   "medR": 570.0,
+   "delta": 0.066,
+   "p": 0.7968,
+   "q": 0.96
+  },
+  {
+   "metric": "callsites_test_sum",
+   "name": "迁移方法测试调用点",
+   "meanT": 2.0,
+   "meanR": 5.044,
+   "medT": 0.0,
+   "medR": 0.0,
+   "delta": 0.047,
+   "p": 0.8227,
+   "q": 0.96
+  },
+  {
+   "metric": "n_moved_methods",
+   "name": "迁移方法数",
+   "meanT": 3.833,
+   "meanR": 3.853,
+   "medT": 4.0,
+   "medR": 3.0,
+   "delta": 0.039,
+   "p": 0.8803,
+   "q": 0.96
+  },
+  {
+   "metric": "n_involved_files",
+   "name": "涉及文件数",
+   "meanT": 2.5,
+   "meanR": 2.632,
+   "medT": 2.5,
+   "medR": 2.0,
+   "delta": -0.032,
+   "p": 0.8976,
+   "q": 0.96
+  },
+  {
+   "metric": "fanin_files_sum",
+   "name": "目标+来源文件扇入合计",
+   "meanT": 95.167,
+   "meanR": 147.426,
+   "medT": 38.5,
+   "medR": 46.0,
+   "delta": 0.022,
+   "p": 0.9369,
+   "q": 0.96
+  },
+  {
+   "metric": "fanin_source_file",
+   "name": "来源文件扇入",
+   "meanT": 73.0,
+   "meanR": 70.576,
+   "medT": 23.5,
+   "medR": 22.0,
+   "delta": 0.018,
+   "p": 0.9512,
+   "q": 0.96
+  },
+  {
+   "metric": "fanout_moved_calls",
+   "name": "迁移代码调用的不同标识符数",
+   "meanT": 12.333,
+   "meanR": 13.603,
+   "medT": 13.0,
+   "medR": 11.0,
+   "delta": 0.017,
+   "p": 0.9526,
+   "q": 0.96
+  },
+  {
+   "metric": "del_files",
+   "name": "含删除的文件数",
+   "meanT": 2.0,
+   "meanR": 2.088,
+   "medT": 2.0,
+   "medR": 2.0,
+   "delta": 0.015,
+   "p": 0.958,
+   "q": 0.96
+  },
+  {
+   "metric": "test_refs_source",
+   "name": "来源文件被测试引用数",
+   "meanT": 34.667,
+   "meanR": 20.574,
+   "medT": 3.5,
+   "medR": 4.5,
+   "delta": 0.015,
+   "p": 0.9601,
+   "q": 0.96
+  }
+ ],
+ "corr": [
+  {
+   "metric": "del_max_one_file",
+   "name": "单文件最大删除行数",
+   "rhoAbsTool": 0.415,
+   "pAbsTool": 0.0002,
+   "rhoAbsTok": 0.265,
+   "pAbsTok": 0.0226,
+   "rhoSigned": 0.188,
+   "pSigned": 0.1095,
+   "qAbsTool": 0.009
+  },
+  {
+   "metric": "patch_del",
+   "name": "源位置删除行数 (patch_del)",
+   "rhoAbsTool": 0.389,
+   "pAbsTool": 0.0006,
+   "rhoAbsTok": 0.308,
+   "pAbsTok": 0.0075,
+   "rhoSigned": 0.211,
+   "pSigned": 0.0715,
+   "qAbsTool": 0.0117
+  },
+  {
+   "metric": "del_ratio",
+   "name": "纯迁移比 del/(add+del)",
+   "rhoAbsTool": 0.371,
+   "pAbsTool": 0.0011,
+   "rhoAbsTok": 0.295,
+   "pAbsTok": 0.0106,
+   "rhoSigned": 0.206,
+   "pSigned": 0.0779,
+   "qAbsTool": 0.0142
+  },
+  {
+   "metric": "import_fanin_source",
+   "name": "来源文件 import 扇入",
+   "rhoAbsTool": 0.288,
+   "pAbsTool": 0.0128,
+   "rhoAbsTok": 0.195,
+   "pAbsTok": 0.0956,
+   "rhoSigned": 0.045,
+   "pSigned": 0.7044,
+   "qAbsTool": 0.122
+  },
+  {
+   "metric": "patch_churn",
+   "name": "补丁总变更行 (churn)",
+   "rhoAbsTool": 0.252,
+   "pAbsTool": 0.0301,
+   "rhoAbsTok": 0.181,
+   "pAbsTok": 0.1236,
+   "rhoSigned": 0.171,
+   "pSigned": 0.1444,
+   "qAbsTool": 0.2289
+  },
+  {
+   "metric": "fanin_files_sum",
+   "name": "目标+来源文件扇入合计",
+   "rhoAbsTool": 0.243,
+   "pAbsTool": 0.0369,
+   "rhoAbsTok": 0.097,
+   "pAbsTok": 0.4127,
+   "rhoSigned": 0.122,
+   "pSigned": 0.2985,
+   "qAbsTool": 0.2335
+  },
+  {
+   "metric": "target_depth",
+   "name": "目标文件目录深度",
+   "rhoAbsTool": -0.221,
+   "pAbsTool": 0.0589,
+   "rhoAbsTok": -0.119,
+   "pAbsTok": 0.3114,
+   "rhoSigned": -0.02,
+   "pSigned": 0.8633,
+   "qAbsTool": 0.3125
+  },
+  {
+   "metric": "fanin_source_file",
+   "name": "来源文件扇入",
+   "rhoAbsTool": 0.215,
+   "pAbsTool": 0.0658,
+   "rhoAbsTok": 0.057,
+   "pAbsTok": 0.632,
+   "rhoSigned": 0.034,
+   "pSigned": 0.7748,
+   "qAbsTool": 0.3125
+  },
+  {
+   "metric": "loc_target",
+   "name": "目标文件 LOC",
+   "rhoAbsTool": 0.187,
+   "pAbsTool": 0.1104,
+   "rhoAbsTok": 0.23,
+   "pAbsTok": 0.0483,
+   "rhoSigned": -0.05,
+   "pSigned": 0.6722,
+   "qAbsTool": 0.3923
+  },
+  {
+   "metric": "loc_touched_sum",
+   "name": "受影响文件 LOC 合计",
+   "rhoAbsTool": 0.186,
+   "pAbsTool": 0.1135,
+   "rhoAbsTok": 0.264,
+   "pAbsTok": 0.0231,
+   "rhoSigned": 0.165,
+   "pSigned": 0.1611,
+   "qAbsTool": 0.3923
+  },
+  {
+   "metric": "loc_touched_max",
+   "name": "受影响文件最大 LOC",
+   "rhoAbsTool": 0.185,
+   "pAbsTool": 0.1153,
+   "rhoAbsTok": 0.246,
+   "pAbsTok": 0.0343,
+   "rhoSigned": 0.133,
+   "pSigned": 0.2573,
+   "qAbsTool": 0.3923
+  },
+  {
+   "metric": "patch_add",
+   "name": "新增行数",
+   "rhoAbsTool": 0.18,
+   "pAbsTool": 0.1239,
+   "rhoAbsTok": 0.134,
+   "pAbsTok": 0.2567,
+   "rhoSigned": 0.117,
+   "pSigned": 0.3203,
+   "qAbsTool": 0.3923
+  },
+  {
+   "metric": "import_fanin_target",
+   "name": "目标文件 import 扇入",
+   "rhoAbsTool": 0.155,
+   "pAbsTool": 0.1872,
+   "rhoAbsTok": 0.092,
+   "pAbsTok": 0.4357,
+   "rhoSigned": 0.146,
+   "pSigned": 0.2145,
+   "qAbsTool": 0.5312
+  },
+  {
+   "metric": "n_moved_methods",
+   "name": "迁移方法数",
+   "rhoAbsTool": 0.144,
+   "pAbsTool": 0.2199,
+   "rhoAbsTok": 0.234,
+   "pAbsTok": 0.045,
+   "rhoSigned": -0.001,
+   "pSigned": 0.994,
+   "qAbsTool": 0.5312
+  },
+  {
+   "metric": "fanin_method_refs_sum",
+   "name": "方法名引用总次数",
+   "rhoAbsTool": 0.143,
+   "pAbsTool": 0.2235,
+   "rhoAbsTok": 0.189,
+   "pAbsTok": 0.1072,
+   "rhoSigned": 0.052,
+   "pSigned": 0.6572,
+   "qAbsTool": 0.5312
+  },
+  {
+   "metric": "loc_source",
+   "name": "来源文件 LOC",
+   "rhoAbsTool": 0.143,
+   "pAbsTool": 0.2237,
+   "rhoAbsTok": 0.114,
+   "pAbsTok": 0.3339,
+   "rhoSigned": 0.169,
+   "pSigned": 0.1495,
+   "qAbsTool": 0.5312
+  },
+  {
+   "metric": "fanout_target_file",
+   "name": "目标文件扇出 (import 数)",
+   "rhoAbsTool": 0.138,
+   "pAbsTool": 0.2411,
+   "rhoAbsTok": 0.192,
+   "pAbsTok": 0.1013,
+   "rhoSigned": 0.047,
+   "pSigned": 0.6916,
+   "qAbsTool": 0.5364
+  },
+  {
+   "metric": "patch_hunks",
+   "name": "补丁 hunk 数",
+   "rhoAbsTool": 0.131,
+   "pAbsTool": 0.2676,
+   "rhoAbsTok": 0.192,
+   "pAbsTok": 0.1015,
+   "rhoSigned": 0.047,
+   "pSigned": 0.689,
+   "qAbsTool": 0.5364
+  },
+  {
+   "metric": "moved_loc",
+   "name": "迁移代码 LOC",
+   "rhoAbsTool": 0.13,
+   "pAbsTool": 0.2682,
+   "rhoAbsTok": 0.115,
+   "pAbsTok": 0.3291,
+   "rhoSigned": 0.073,
+   "pSigned": 0.5362,
+   "qAbsTool": 0.5364
+  },
+  {
+   "metric": "test_refs_source",
+   "name": "来源文件被测试引用数",
+   "rhoAbsTool": 0.104,
+   "pAbsTool": 0.3798,
+   "rhoAbsTok": 0.029,
+   "pAbsTok": 0.8071,
+   "rhoSigned": 0.006,
+   "pSigned": 0.9582,
+   "qAbsTool": 0.7216
+  },
+  {
+   "metric": "cc_moved",
+   "name": "迁移代码圈复杂度",
+   "rhoAbsTool": 0.09,
+   "pAbsTool": 0.4459,
+   "rhoAbsTok": -0.024,
+   "pAbsTok": 0.8359,
+   "rhoSigned": 0.142,
+   "pSigned": 0.2262,
+   "qAbsTool": 0.7651
+  },
+  {
+   "metric": "callsites_out_max",
+   "name": "迁移方法外部调用点 (max)",
+   "rhoAbsTool": 0.087,
+   "pAbsTool": 0.462,
+   "rhoAbsTok": 0.098,
+   "pAbsTok": 0.4083,
+   "rhoSigned": 0.082,
+   "pSigned": 0.4847,
+   "qAbsTool": 0.7651
+  },
+  {
+   "metric": "nom_source",
+   "name": "来源文件方法数 (NOM)",
+   "rhoAbsTool": 0.084,
+   "pAbsTool": 0.4778,
+   "rhoAbsTok": 0.063,
+   "pAbsTok": 0.5934,
+   "rhoSigned": 0.128,
+   "pSigned": 0.2774,
+   "qAbsTool": 0.7651
+  },
+  {
+   "metric": "fanin_target_file",
+   "name": "目标文件扇入 (引用文件数)",
+   "rhoAbsTool": 0.081,
+   "pAbsTool": 0.4917,
+   "rhoAbsTok": -0.112,
+   "pAbsTok": 0.3412,
+   "rhoSigned": 0.218,
+   "pSigned": 0.0621,
+   "qAbsTool": 0.7651
+  },
+  {
+   "metric": "fanin_method_files_max",
+   "name": "方法名引用文件数",
+   "rhoAbsTool": 0.076,
+   "pAbsTool": 0.5191,
+   "rhoAbsTok": 0.133,
+   "pAbsTok": 0.2595,
+   "rhoSigned": 0.071,
+   "pSigned": 0.5463,
+   "qAbsTool": 0.7651
+  },
+  {
+   "metric": "nesting_moved",
+   "name": "迁移代码最大嵌套",
+   "rhoAbsTool": -0.071,
+   "pAbsTool": 0.5482,
+   "rhoAbsTok": -0.079,
+   "pAbsTok": 0.5027,
+   "rhoSigned": 0.08,
+   "pSigned": 0.4994,
+   "qAbsTool": 0.7651
+  },
+  {
+   "metric": "callsites_out_sum",
+   "name": "迁移方法外部调用点 (sum)",
+   "rhoAbsTool": 0.068,
+   "pAbsTool": 0.5654,
+   "rhoAbsTok": 0.09,
+   "pAbsTok": 0.4436,
+   "rhoSigned": 0.082,
+   "pSigned": 0.4865,
+   "qAbsTool": 0.7651
+  },
+  {
+   "metric": "dir_distance",
+   "name": "源/目标目录距离",
+   "rhoAbsTool": -0.064,
+   "pAbsTool": 0.5886,
+   "rhoAbsTok": 0.004,
+   "pAbsTok": 0.9745,
+   "rhoSigned": -0.117,
+   "pSigned": 0.3222,
+   "qAbsTool": 0.7651
+  },
+  {
+   "metric": "patch_files",
+   "name": "补丁涉及文件数",
+   "rhoAbsTool": 0.062,
+   "pAbsTool": 0.597,
+   "rhoAbsTok": 0.056,
+   "pAbsTok": 0.6346,
+   "rhoSigned": 0.099,
+   "pSigned": 0.4004,
+   "qAbsTool": 0.7651
+  },
+  {
+   "metric": "nom_target",
+   "name": "目标文件方法数 (NOM)",
+   "rhoAbsTool": 0.061,
+   "pAbsTool": 0.605,
+   "rhoAbsTok": 0.014,
+   "pAbsTok": 0.9039,
+   "rhoSigned": 0.022,
+   "pSigned": 0.8548,
+   "qAbsTool": 0.7651
+  },
+  {
+   "metric": "fanout_source_file",
+   "name": "来源文件扇出 (import 数)",
+   "rhoAbsTool": 0.058,
+   "pAbsTool": 0.6242,
+   "rhoAbsTok": 0.056,
+   "pAbsTok": 0.6381,
+   "rhoSigned": 0.054,
+   "pSigned": 0.6501,
+   "qAbsTool": 0.7651
+  },
+  {
+   "metric": "fanout_moved_calls",
+   "name": "迁移代码调用的不同标识符数",
+   "rhoAbsTool": 0.052,
+   "pAbsTool": 0.6583,
+   "rhoAbsTok": 0.033,
+   "pAbsTok": 0.7799,
+   "rhoSigned": 0.048,
+   "pSigned": 0.6874,
+   "qAbsTool": 0.7818
+  },
+  {
+   "metric": "test_refs_target",
+   "name": "目标文件被测试引用数",
+   "rhoAbsTool": 0.042,
+   "pAbsTool": 0.7216,
+   "rhoAbsTok": -0.148,
+   "pAbsTok": 0.2093,
+   "rhoSigned": 0.202,
+   "pSigned": 0.0847,
+   "qAbsTool": 0.8309
+  },
+  {
+   "metric": "repo_src_files",
+   "name": "仓库源文件数",
+   "rhoAbsTool": -0.024,
+   "pAbsTool": 0.84,
+   "rhoAbsTok": 0.153,
+   "pAbsTok": 0.1939,
+   "rhoSigned": 0.06,
+   "pSigned": 0.611,
+   "qAbsTool": 0.9388
+  },
+  {
+   "metric": "del_files",
+   "name": "含删除的文件数",
+   "rhoAbsTool": -0.014,
+   "pAbsTool": 0.9087,
+   "rhoAbsTok": 0.054,
+   "pAbsTok": 0.6481,
+   "rhoSigned": 0.049,
+   "pSigned": 0.6791,
+   "qAbsTool": 0.9866
+  },
+  {
+   "metric": "repo_loc",
+   "name": "仓库总 LOC",
+   "rhoAbsTool": 0.009,
+   "pAbsTool": 0.9417,
+   "rhoAbsTok": 0.133,
+   "pAbsTok": 0.2602,
+   "rhoSigned": 0.144,
+   "pSigned": 0.2207,
+   "qAbsTool": 0.9926
+  },
+  {
+   "metric": "n_involved_files",
+   "name": "涉及文件数",
+   "rhoAbsTool": 0.004,
+   "pAbsTool": 0.9713,
+   "rhoAbsTok": 0.027,
+   "pAbsTok": 0.8224,
+   "rhoSigned": 0.053,
+   "pSigned": 0.653,
+   "qAbsTool": 0.9926
+  },
+  {
+   "metric": "callsites_test_sum",
+   "name": "迁移方法测试调用点",
+   "rhoAbsTool": 0.001,
+   "pAbsTool": 0.9926,
+   "rhoAbsTok": -0.042,
+   "pAbsTok": 0.7203,
+   "rhoSigned": 0.09,
+   "pSigned": 0.4462,
+   "qAbsTool": 0.9926
+  }
+ ],
+ "terc": [
+  {
+   "label": "低 (≤20)",
+   "n": 24,
+   "absTool": 5.0,
+   "absTok": 180.0,
+   "tail": 0
+  },
+  {
+   "label": "中 (20–34)",
+   "n": 25,
+   "absTool": 7.6,
+   "absTok": 264.0,
+   "tail": 2
+  },
+  {
+   "label": "高 (>34)",
+   "n": 25,
+   "absTool": 11.4,
+   "absTok": 464.0,
+   "tail": 4
+  }
+ ],
+ "tailrows": [
+  {
+   "id": "babel__babel-14532",
+   "lang": "JS/TS",
+   "dTool": 30,
+   "dRecon": 16,
+   "dTime": 846,
+   "dTok": 3972,
+   "patch_del": 73,
+   "del_ratio": 0.4,
+   "del_max": 56,
+   "fanin_t": 21,
+   "fanout_s": 3,
+   "callsites": 2,
+   "loc_t": 430
+  },
+  {
+   "id": "briannesbitt__carbon-2665",
+   "lang": "PHP",
+   "dTool": 26,
+   "dRecon": 18,
+   "dTime": -594,
+   "dTok": 666,
+   "patch_del": 68,
+   "del_ratio": 0.33,
+   "del_max": 54,
+   "fanin_t": 6,
+   "fanout_s": 40,
+   "callsites": 9,
+   "loc_t": 239
+  },
+  {
+   "id": "fluent__fluentd-3466",
+   "lang": "Ruby",
+   "dTool": 9,
+   "dRecon": 1,
+   "dTime": -283,
+   "dTok": 916,
+   "patch_del": 55,
+   "del_ratio": 0.48,
+   "del_max": 55,
+   "fanin_t": 6,
+   "fanout_s": 9,
+   "callsites": 0,
+   "loc_t": 1171
+  },
+  {
+   "id": "jqlang__jq-2235",
+   "lang": "C",
+   "dTool": 34,
+   "dRecon": 13,
+   "dTime": 505,
+   "dTok": 884,
+   "patch_del": 114,
+   "del_ratio": 0.54,
+   "del_max": 113,
+   "fanin_t": 50,
+   "fanout_s": 19,
+   "callsites": 0,
+   "loc_t": 725
+  },
+  {
+   "id": "nlohmann__json-4237",
+   "lang": "C++",
+   "dTool": 23,
+   "dRecon": 17,
+   "dTime": 737,
+   "dTok": 968,
+   "patch_del": 30,
+   "del_ratio": 0.48,
+   "del_max": 15,
+   "fanin_t": 20,
+   "fanout_s": 19,
+   "callsites": 27,
+   "loc_t": 446
+  },
+  {
+   "id": "php-cs-fixer__php-cs-fixer-7635",
+   "lang": "PHP",
+   "dTool": 18,
+   "dRecon": 11,
+   "dTime": 139,
+   "dTok": 634,
+   "patch_del": 29,
+   "del_ratio": 0.51,
+   "del_max": 28,
+   "fanin_t": 5,
+   "fanout_s": 6,
+   "callsites": 5,
+   "loc_t": 708
+  }
+ ],
+ "scatter": [
+  {
+   "id": "apache__lucene-11760",
+   "x": 36,
+   "y": 4,
+   "tail": false
+  },
+  {
+   "id": "apache__lucene-12022",
+   "x": 18,
+   "y": 5,
+   "tail": false
+  },
+  {
+   "id": "apache__lucene-12196",
+   "x": 27,
+   "y": 0,
+   "tail": false
+  },
+  {
+   "id": "apache__lucene-12212",
+   "x": 22,
+   "y": 4,
+   "tail": false
+  },
+  {
+   "id": "apache__lucene-12626",
+   "x": 37,
+   "y": 5,
+   "tail": false
+  },
+  {
+   "id": "apache__lucene-13170",
+   "x": 31,
+   "y": 3,
+   "tail": false
+  },
+  {
+   "id": "apache__lucene-13301",
+   "x": 24,
+   "y": 4,
+   "tail": false
+  },
+  {
+   "id": "astral-sh__ruff-15309",
+   "x": 61,
+   "y": 7,
+   "tail": false
+  },
+  {
+   "id": "astral-sh__ruff-15330",
+   "x": 12,
+   "y": 3,
+   "tail": false
+  },
+  {
+   "id": "axios__axios-4731",
+   "x": 24,
+   "y": 9,
+   "tail": false
+  },
+  {
+   "id": "axios__axios-4738",
+   "x": 7,
+   "y": 1,
+   "tail": false
+  },
+  {
+   "id": "babel__babel-13928",
+   "x": 20,
+   "y": 4,
+   "tail": false
+  },
+  {
+   "id": "babel__babel-14532",
+   "x": 73,
+   "y": 30,
+   "tail": true
+  },
+  {
+   "id": "briannesbitt__carbon-2665",
+   "x": 68,
+   "y": 26,
+   "tail": true
+  },
+  {
+   "id": "briannesbitt__carbon-2752",
+   "x": 16,
+   "y": 1,
+   "tail": false
+  },
+  {
+   "id": "burntsushi__ripgrep-2576",
+   "x": 11,
+   "y": 16,
+   "tail": false
+  },
+  {
+   "id": "caddyserver__caddy-4774",
+   "x": 77,
+   "y": 9,
+   "tail": false
+  },
+  {
+   "id": "caddyserver__caddy-4943",
+   "x": 17,
+   "y": 2,
+   "tail": false
+  },
+  {
+   "id": "facebook__docusaurus-10130",
+   "x": 70,
+   "y": 6,
+   "tail": false
+  },
+  {
+   "id": "facebook__docusaurus-10309",
+   "x": 35,
+   "y": 12,
+   "tail": false
+  },
+  {
+   "id": "faker-ruby__faker-2705",
+   "x": 21,
+   "y": 15,
+   "tail": false
+  },
+  {
+   "id": "faker-ruby__faker-2970",
+   "x": 12,
+   "y": 3,
+   "tail": false
+  },
+  {
+   "id": "fastlane__fastlane-19207",
+   "x": 27,
+   "y": 15,
+   "tail": false
+  },
+  {
+   "id": "fastlane__fastlane-19304",
+   "x": 27,
+   "y": 5,
+   "tail": false
+  },
+  {
+   "id": "fluent__fluentd-3328",
+   "x": 24,
+   "y": 20,
+   "tail": false
+  },
+  {
+   "id": "fluent__fluentd-3466",
+   "x": 55,
+   "y": 9,
+   "tail": true
+  },
+  {
+   "id": "fmtlib__fmt-1683",
+   "x": 15,
+   "y": 7,
+   "tail": false
+  },
+  {
+   "id": "fmtlib__fmt-2310",
+   "x": 25,
+   "y": 4,
+   "tail": false
+  },
+  {
+   "id": "gin-gonic__gin-1805",
+   "x": 35,
+   "y": 9,
+   "tail": false
+  },
+  {
+   "id": "gin-gonic__gin-1957",
+   "x": 190,
+   "y": 4,
+   "tail": false
+  },
+  {
+   "id": "gohugoio__hugo-12171",
+   "x": 55,
+   "y": 10,
+   "tail": false
+  },
+  {
+   "id": "gohugoio__hugo-12204",
+   "x": 103,
+   "y": 22,
+   "tail": false
+  },
+  {
+   "id": "google__gson-1014",
+   "x": 16,
+   "y": 1,
+   "tail": false
+  },
+  {
+   "id": "google__gson-1093",
+   "x": 8,
+   "y": 9,
+   "tail": false
+  },
+  {
+   "id": "google__gson-1100",
+   "x": 23,
+   "y": 0,
+   "tail": false
+  },
+  {
+   "id": "google__gson-2024",
+   "x": 4,
+   "y": 0,
+   "tail": false
+  },
+  {
+   "id": "google__gson-2061",
+   "x": 10,
+   "y": 3,
+   "tail": false
+  },
+  {
+   "id": "google__gson-2134",
+   "x": 4,
+   "y": 0,
+   "tail": false
+  },
+  {
+   "id": "google__gson-2158",
+   "x": 48,
+   "y": 8,
+   "tail": false
+  },
+  {
+   "id": "google__gson-2311",
+   "x": 1,
+   "y": 5,
+   "tail": false
+  },
+  {
+   "id": "google__gson-2479",
+   "x": 10,
+   "y": 11,
+   "tail": false
+  },
+  {
+   "id": "hashicorp__terraform-34580",
+   "x": 62,
+   "y": 7,
+   "tail": false
+  },
+  {
+   "id": "immutable-js__immutable-js-2005",
+   "x": 24,
+   "y": 15,
+   "tail": false
+  },
+  {
+   "id": "immutable-js__immutable-js-2006",
+   "x": 10,
+   "y": 9,
+   "tail": false
+  },
+  {
+   "id": "javaparser__javaparser-4538",
+   "x": 18,
+   "y": 8,
+   "tail": false
+  },
+  {
+   "id": "javaparser__javaparser-4561",
+   "x": 53,
+   "y": 7,
+   "tail": false
+  },
+  {
+   "id": "jekyll__jekyll-8047",
+   "x": 27,
+   "y": 1,
+   "tail": false
+  },
+  {
+   "id": "jekyll__jekyll-8167",
+   "x": 26,
+   "y": 3,
+   "tail": false
+  },
+  {
+   "id": "jordansissel__fpm-1850",
+   "x": 22,
+   "y": 6,
+   "tail": false
+  },
+  {
+   "id": "jqlang__jq-2235",
+   "x": 114,
+   "y": 34,
+   "tail": true
+  },
+  {
+   "id": "jqlang__jq-2598",
+   "x": 12,
+   "y": 8,
+   "tail": false
+  },
+  {
+   "id": "laravel__framework-48573",
+   "x": 37,
+   "y": 8,
+   "tail": false
+  },
+  {
+   "id": "mrdoob__three.js-25687",
+   "x": 24,
+   "y": 12,
+   "tail": false
+  },
+  {
+   "id": "mrdoob__three.js-26589",
+   "x": 3,
+   "y": 7,
+   "tail": false
+  },
+  {
+   "id": "nlohmann__json-4237",
+   "x": 30,
+   "y": 23,
+   "tail": true
+  },
+  {
+   "id": "nushell__nushell-12901",
+   "x": 103,
+   "y": 13,
+   "tail": false
+  },
+  {
+   "id": "nushell__nushell-12950",
+   "x": 28,
+   "y": 1,
+   "tail": false
+  },
+  {
+   "id": "php-cs-fixer__php-cs-fixer-7523",
+   "x": 16,
+   "y": 11,
+   "tail": false
+  },
+  {
+   "id": "php-cs-fixer__php-cs-fixer-7635",
+   "x": 29,
+   "y": 18,
+   "tail": true
+  },
+  {
+   "id": "phpoffice__phpspreadsheet-3463",
+   "x": 33,
+   "y": 4,
+   "tail": false
+  },
+  {
+   "id": "preactjs__preact-2757",
+   "x": 14,
+   "y": 1,
+   "tail": false
+  },
+  {
+   "id": "preactjs__preact-2896",
+   "x": 33,
+   "y": 10,
+   "tail": false
+  },
+  {
+   "id": "projectlombok__lombok-3326",
+   "x": 46,
+   "y": 18,
+   "tail": false
+  },
+  {
+   "id": "projectlombok__lombok-3602",
+   "x": 23,
+   "y": 0,
+   "tail": false
+  },
+  {
+   "id": "projectlombok__lombok-3697",
+   "x": 62,
+   "y": 10,
+   "tail": false
+  },
+  {
+   "id": "prometheus__prometheus-10633",
+   "x": 13,
+   "y": 2,
+   "tail": false
+  },
+  {
+   "id": "reactivex__rxjava-7597",
+   "x": 20,
+   "y": 5,
+   "tail": false
+  },
+  {
+   "id": "redis__redis-10068",
+   "x": 124,
+   "y": 7,
+   "tail": false
+  },
+  {
+   "id": "rubocop__rubocop-13362",
+   "x": 8,
+   "y": 6,
+   "tail": false
+  },
+  {
+   "id": "tokio-rs__axum-1119",
+   "x": 28,
+   "y": 8,
+   "tail": false
+  },
+  {
+   "id": "tokio-rs__tokio-4384",
+   "x": 56,
+   "y": 4,
+   "tail": false
+  },
+  {
+   "id": "uutils__coreutils-6377",
+   "x": 81,
+   "y": 14,
+   "tail": false
+  },
+  {
+   "id": "valkey-io__valkey-1499",
+   "x": 13,
+   "y": 0,
+   "tail": false
+  },
+  {
+   "id": "vuejs__core-11589",
+   "x": 44,
+   "y": 1,
+   "tail": false
+  }
+ ],
+ "reg": {
+  "r2": 0.342,
+  "adj": 0.272,
+  "F": 4.89,
+  "df1": 7,
+  "df2": 66,
+  "p": 0.0002,
+  "terms": [
+   [
+    "来源文件 import 扇入",
+    0.38,
+    3.31,
+    0.001
+   ],
+   [
+    "单文件最大删除行数",
+    0.303,
+    2.16,
+    0.034
+   ],
+   [
+    "纯迁移比 del/(add+del)",
+    0.28,
+    1.94,
+    0.057
+   ],
+   [
+    "目标文件扇入",
+    0.108,
+    0.44,
+    0.661
+   ],
+   [
+    "仓库源文件数",
+    -0.143,
+    -1.37,
+    0.175
+   ],
+   [
+    "目标文件被测试引用数",
+    -0.076,
+    -0.32,
+    0.753
+   ],
+   [
+    "受影响文件最大 LOC",
+    -0.034,
+    -0.32,
+    0.754
+   ]
+  ]
+ }
+}
