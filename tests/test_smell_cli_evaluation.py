@@ -320,6 +320,18 @@ def test_cli_runner_keeps_a_patch_without_artifacts_byte_for_byte():
     assert run_cli_swebench.strip_artifact_sections(fix) == (fix, [])
 
 
+def test_trajectory_agent_seconds_uses_first_and_last_event_stamps(tmp_path):
+    path = tmp_path / "trajectory.jsonl"
+    path.write_text(
+        '{"type":"step_start","timestamp":1794186576362}\n'
+        '{"type":"tool_use","timestamp":1794187000000}\n'
+        '{"type":"step_finish","timestamp":1794187583517}\n'
+    )
+
+    assert run_cli_swebench.trajectory_agent_seconds(path) == pytest.approx(1007.155)
+    assert run_cli_swebench.trajectory_agent_seconds(tmp_path / "missing.jsonl") is None
+
+
 def test_cli_runner_merges_summary_across_reruns(tmp_path):
     (tmp_path / "summary.json").write_text(
         json.dumps(
@@ -328,13 +340,13 @@ def test_cli_runner_merges_summary_across_reruns(tmp_path):
                     "instance_id": "kept",
                     "status": "COMPLETED",
                     "detail": "patch_bytes=1",
-                    "elapsed_seconds": 1.0,
+                    "agent_seconds": 1.0,
                 },
                 {
                     "instance_id": "retried",
                     "status": "ERROR",
                     "detail": "TimeoutError",
-                    "elapsed_seconds": 2.0,
+                    "agent_seconds": 2.0,
                 },
             ]
         )
@@ -404,6 +416,32 @@ def test_cli_runner_reads_provider_details_from_agent_configs(tmp_path, monkeypa
         "https://relay.example/v1",
         "RELAY_KEY",
     )
+    assert run_cli_swebench.opencode_provider()[:2] == (
+        "https://relay.example/v1",
+        "RELAY_KEY",
+    )
+
+
+def test_cli_runner_reads_v2_opencode_providers(tmp_path, monkeypatch):
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: tmp_path))
+    opencode_dir = tmp_path / ".config" / "opencode"
+    opencode_dir.mkdir(parents=True)
+    (opencode_dir / "opencode.json").write_text(
+        json.dumps(
+            {
+                "providers": {
+                    "ikuncode": {
+                        "package": "@opencode/ai/providers/openai-compatible",
+                        "settings": {
+                            "baseURL": "https://relay.example/v1",
+                            "apiKey": "{env:RELAY_KEY}",
+                        },
+                    }
+                }
+            }
+        )
+    )
+
     assert run_cli_swebench.opencode_provider()[:2] == (
         "https://relay.example/v1",
         "RELAY_KEY",
@@ -541,7 +579,15 @@ def test_cli_runner_keeps_completed_result_if_tempdir_cleanup_fails(
     monkeypatch.setattr(run_cli_swebench, "start_validation_container", lambda *a, **k: None)
     monkeypatch.setattr(run_cli_swebench, "wait_for_container", lambda *a, **k: None)
     monkeypatch.setattr(run_cli_swebench, "restore_workspace_ownership", lambda *a, **k: None)
-    monkeypatch.setattr(run_cli_swebench, "run_agent", lambda *a, **k: 0)
+
+    def fake_run_agent(agent, model, workspace, prompt, timeout, instance_dir, isolated_root=None):
+        (instance_dir / "trajectory.jsonl").write_text(
+            '{"type":"step_start","timestamp":1000000000000}\n'
+            '{"type":"step_finish","timestamp":1000000123500}\n'
+        )
+        return 0
+
+    monkeypatch.setattr(run_cli_swebench, "run_agent", fake_run_agent)
     monkeypatch.setattr(run_cli_swebench, "export_prediction", lambda *a, **k: "diff")
     monkeypatch.setattr(run_cli_swebench, "prepare_baseline", lambda *a, **k: "abc123")
     monkeypatch.setattr(run_cli_swebench, "wipe_testbed", lambda *a, **k: None)
@@ -560,6 +606,12 @@ def test_cli_runner_keeps_completed_result_if_tempdir_cleanup_fails(
     )
 
     assert result.status == "COMPLETED"
+    assert result.agent_seconds == pytest.approx(123.5)
+    saved = json.loads(
+        (tmp_path / "out" / "vuejs__core-11739" / "result.json").read_text()
+    )
+    assert saved["agent_seconds"] == pytest.approx(123.5)
+    assert "elapsed_seconds" not in saved
     assert (tmp_path / "out" / "preds.json").is_file()
 
 

@@ -49,7 +49,8 @@ for run in ['1', '2', '3']:
             el = None
             if os.path.exists(rj):
                 try:
-                    el = json.load(open(rj)).get('elapsed_seconds')
+                    rec = json.load(open(rj))
+                    el = rec.get('agent_seconds', rec.get('elapsed_seconds'))
                 except Exception:
                     pass
             rows[iid][(run, cond)] = dict(recon=recon, tools=tools, tok=tok, elapsed=el)

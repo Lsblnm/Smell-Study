@@ -71,7 +71,7 @@ class Result:
     instance_id: str
     status: str
     detail: str
-    elapsed_seconds: float
+    agent_seconds: float
 
 
 def log(message: str) -> None:
@@ -123,14 +123,28 @@ def codex_provider() -> tuple[str, str, Path]:
     return base.group(1), name.group(1), path
 
 
+def _opencode_endpoint(block: object) -> tuple[str, str] | None:
+    """Read baseURL plus {env:VAR} apiKey from a V1 options or V2 settings object."""
+    if not isinstance(block, dict):
+        return None
+    placeholder = ENV_PLACEHOLDER.match(str(block.get("apiKey", "")))
+    base_url = block.get("baseURL")
+    if base_url and placeholder:
+        return str(base_url), placeholder.group(1)
+    return None
+
+
 def opencode_provider() -> tuple[str, str, Path]:
     path = Path.home() / ".config" / "opencode" / "opencode.json"
-    providers = json.loads(read_agent_config(path, "opencode")).get("provider", {})
-    for provider in providers.values():
-        options = provider.get("options", {})
-        placeholder = ENV_PLACEHOLDER.match(str(options.get("apiKey", "")))
-        if options.get("baseURL") and placeholder:
-            return options["baseURL"], placeholder.group(1), path
+    config = json.loads(read_agent_config(path, "opencode"))
+    # V1 uses provider.*.options; V2 uses providers.*.settings.
+    for key, nested in (("provider", "options"), ("providers", "settings")):
+        for provider in config.get(key, {}).values():
+            if not isinstance(provider, dict):
+                continue
+            found = _opencode_endpoint(provider.get(nested))
+            if found:
+                return found[0], found[1], path
     raise ValueError(f"no provider with baseURL and a {{env:VAR}} apiKey in {path}")
 
 
@@ -333,6 +347,40 @@ def terminate_process_group(process: subprocess.Popen) -> None:
             return
         except subprocess.TimeoutExpired:
             continue
+
+
+_TIMESTAMP_RE = re.compile(r'"timestamp"\s*:\s*(\d+)')
+
+
+def trajectory_agent_seconds(path: Path) -> float | None:
+    """Wall time of the agent session: last event timestamp minus first.
+
+    OpenCode JSONL stamps events in milliseconds. Integer timestamps with
+    fewer than 12 digits are treated as seconds. Returns None when the
+    trajectory is missing or has no usable timestamps.
+    """
+    if not path.is_file():
+        return None
+    first: int | None = None
+    last: int | None = None
+    try:
+        with path.open(encoding=UTF8, errors="replace") as handle:
+            for line in handle:
+                match = _TIMESTAMP_RE.search(line)
+                if match is None:
+                    continue
+                stamp = int(match.group(1))
+                if first is None:
+                    first = stamp
+                last = stamp
+    except OSError:
+        return None
+    if first is None or last is None or last < first:
+        return None
+    delta = last - first
+    if first >= 10**12:
+        return delta / 1000.0
+    return float(delta)
 
 
 def run_agent(
@@ -633,7 +681,7 @@ def process_instance(
     timeout: int,
 ) -> Result:
     instance_id = instance["instance_id"]
-    started_at = time.monotonic()
+    agent_seconds = 0.0
     container = (
         f"cli-eval-{agent}-{re.sub(r'[^a-zA-Z0-9_.-]', '-', instance_id).lower()}-"
         f"{uuid.uuid4().hex[:8]}"
@@ -672,15 +720,22 @@ def process_instance(
             restore_workspace_ownership(container, instance_id)
 
             log(f"[{instance_id}] running {agent} model={model}")
-            returncode = run_agent(
-                agent,
-                model,
-                workspace,
-                build_prompt(instance, container),
-                timeout,
-                instance_dir,
-                isolated_root=Path(temporary_dir.name) / "agent-runtime",
-            )
+            agent_started = time.monotonic()
+            try:
+                returncode = run_agent(
+                    agent,
+                    model,
+                    workspace,
+                    build_prompt(instance, container),
+                    timeout,
+                    instance_dir,
+                    isolated_root=Path(temporary_dir.name) / "agent-runtime",
+                )
+            finally:
+                agent_seconds = time.monotonic() - agent_started
+                parsed = trajectory_agent_seconds(instance_dir / "trajectory.jsonl")
+                if parsed is not None:
+                    agent_seconds = parsed
             if returncode != 0:
                 raise RuntimeError(f"{agent} exited with code {returncode}")
 
@@ -707,7 +762,7 @@ def process_instance(
     finally:
         cleanup_temporary_directory(temporary_dir, instance_id)
 
-    result = Result(instance_id, status, detail, time.monotonic() - started_at)
+    result = Result(instance_id, status, detail, agent_seconds)
     atomic_write(
         instance_dir / "result.json",
         json.dumps(asdict(result), ensure_ascii=False, indent=2),
