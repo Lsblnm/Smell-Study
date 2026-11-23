@@ -176,3 +176,13 @@ notebooks/
 smell-patch/
 smell-patch-intro/
 traj_results/
+
+
+# Archives / Compressed files
+*.tar.gz
+*.zip
+*.rar
+*.7z
+*.gz
+*.xz
+*.tar

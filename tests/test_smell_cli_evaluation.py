@@ -702,3 +702,58 @@ def test_cli_runner_builds_noninteractive_agent_commands(tmp_path):
     assert opencode[opencode.index("--variant") + 1] == "high"
     assert opencode[-1] == "fix it"
     assert opencode_input is None
+
+
+def test_history_strip_script_keeps_worktree_and_checks_head():
+    script = run_cli_swebench.history_strip_script("a" * 40)
+    assert 'if [ "$head" != "' + "a" * 40 + '" ]' in script
+    assert "git checkout" not in script
+    assert "git reset" not in script
+    assert "git update-ref -d" in script
+    assert "git remote remove" in script
+    assert "git reflog expire --expire=now --all" in script
+    assert "git gc --prune=now" in script
+    assert "git fsck --unreachable --no-reflogs" in script
+    assert "rm -f .git/objects/info/alternates" in script
+
+
+def test_history_strip_skips_without_docker_when_base_commit_is_absent(monkeypatch):
+    calls = []
+
+    def fake_run(*args, **kwargs):
+        calls.append(args)
+        return SimpleNamespace(stdout="", returncode=0)
+
+    monkeypatch.setattr(run_cli_swebench, "run_command", fake_run)
+    run_cli_swebench.strip_future_history("container", "vuejs__core-1", "")
+    run_cli_swebench.strip_future_history("container", "vuejs__core-1", "not a commit")
+    assert calls == []
+
+
+def test_history_strip_warns_and_continues_when_head_or_fsck_disagrees(monkeypatch):
+    scripts = []
+    replies = iter(
+        [
+            SimpleNamespace(stdout="HEAD_MISMATCH deadbeef\n", returncode=0),
+            SimpleNamespace(stdout="FSCK_UNREACHABLE\nunreachable commit abc\n", returncode=0),
+        ]
+    )
+
+    def fake_run(command, **kwargs):
+        scripts.append(kwargs.get("input_text", ""))
+        return next(replies)
+
+    monkeypatch.setattr(run_cli_swebench, "run_command", fake_run)
+    run_cli_swebench.strip_future_history("container", "vuejs__core-1", "b" * 40)
+    run_cli_swebench.strip_future_history("container", "vuejs__core-1", "c" * 40)
+    assert all("git checkout" not in script for script in scripts)
+    assert all("git reset" not in script for script in scripts)
+
+
+def test_github_host_block_failure_does_not_raise(monkeypatch):
+    def boom(*args, **kwargs):
+        raise RuntimeError("read-only hosts")
+
+    monkeypatch.setattr(run_cli_swebench, "run_command", boom)
+    run_cli_swebench.block_github_hosts("container", "vuejs__core-1")
+    run_cli_swebench.strip_future_history("container", "vuejs__core-1", "d" * 40)

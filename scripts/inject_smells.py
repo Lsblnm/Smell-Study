@@ -72,7 +72,19 @@ SMELLS = {
     "LongMethod.md": ("LongMethod", "LM"),
     "GodClass.md": ("GodClass", "GC"),
     "FeatureEnvy.md": ("FeatureEnvy", "FE"),
+    "CodeClone.md": ("CodeClone", "CC"),
+    "CyclicDependency.md": ("CyclicDependency", "CD"),
+    "CyclicDepenDency.md": ("CyclicDependency", "CD"),
 }
+REVERSE_SMELLS = (
+    "LongMethod",
+    "FeatureEnvy",
+    "GodClass",
+    "CodeClone",
+    "CyclicDependency",
+)
+TIERS = ("S2", "S1", "S0")
+TARGET_UNIT_KEYS = ("核心单元", "目标方法", "目标类")
 FINAL_STATUSES = {"SUCCESS", "FAILED", "NOT_INJECTABLE"}
 PATCH_PATH_RE = re.compile(r"^\+\+\+ b/(.+)$", re.MULTILINE)
 PRINT_LOCK = threading.Lock()
@@ -107,6 +119,15 @@ class Result:
     instance_id: str
     status: str
     detail: str = ""
+
+
+@dataclass(frozen=True)
+class Seed:
+    patch: str
+    target_file: str
+    target_unit: str
+    gold: str | None = None
+    test: str | None = None
 
 
 class CommandError(RuntimeError):
@@ -255,14 +276,114 @@ def configure_output_roots(
     return PATCH_ROOT, INTRO_ROOT
 
 
-def output_paths(smell: Smell, instance_id: str) -> Paths:
+def output_paths(
+    smell: Smell,
+    instance_id: str,
+    patch_root: Path | None = None,
+    intro_root: Path | None = None,
+) -> Paths:
+    patches = PATCH_ROOT if patch_root is None else patch_root
+    intros = INTRO_ROOT if intro_root is None else intro_root
     stem = f"{instance_id}-{smell.abbreviation}"
     return Paths(
-        patch=PATCH_ROOT / smell.name / f"{stem}.patch",
-        intro=INTRO_ROOT / smell.name / f"{stem}.json",
-        gold=PATCH_ROOT / smell.name / f"{stem}-gold.patch",
-        test=PATCH_ROOT / smell.name / f"{stem}-test.patch",
+        patch=patches / smell.name / f"{stem}.patch",
+        intro=intros / smell.name / f"{stem}.json",
+        gold=patches / smell.name / f"{stem}-gold.patch",
+        test=patches / smell.name / f"{stem}-test.patch",
     )
+
+
+def tier_root(root: Path, tier: str) -> Path:
+    if root.name in TIERS:
+        return root.with_name(tier)
+    return root / tier
+
+
+def smell_for_tier(smell: Smell, tier: str) -> Smell:
+    parent = smell.prompt_path.parent
+    if parent.name not in TIERS:
+        raise ValueError(
+            "reverse generation requires a prompt inside prompts/S0, prompts/S1, "
+            f"or prompts/S2, got {smell.prompt_path}"
+        )
+    path = parent.parent / tier / smell.prompt_path.name
+    if not path.is_file():
+        raise ValueError(f"prompt does not exist: {path}")
+    return Smell(smell.name, smell.abbreviation, path)
+
+
+def read_locked_target(intro: Path) -> tuple[str, str] | None:
+    payload = extract_json_object(intro.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        return None
+    location = payload.get("注入位置")
+    if not isinstance(location, dict):
+        return None
+    target_file = location.get("目标文件")
+    target_unit = None
+    for key in TARGET_UNIT_KEYS:
+        value = location.get(key)
+        if isinstance(value, str) and value.strip():
+            target_unit = value.strip()
+            break
+    if not isinstance(target_file, str) or not target_file.strip() or target_unit is None:
+        return None
+    return target_file.strip(), target_unit
+
+
+def tier_ready(paths: Paths) -> str | None:
+    """None when this tier can seed the next one."""
+    if not paths.intro.is_file():
+        return "previous tier has no smell.json"
+    status = parse_status(paths.intro.read_text(encoding="utf-8"))
+    if status in {"FAILED", "NOT_INJECTABLE"}:
+        return f"previous tier {status}"
+    patch_ready = paths.patch.is_file() and bool(paths.patch.read_text(encoding="utf-8").strip())
+    if status != "SUCCESS" or not patch_ready:
+        return "previous tier is not SUCCESS with smell.patch"
+    return None
+
+
+def load_seed(paths: Paths, lock: tuple[str, str]) -> Seed:
+    gold = paths.gold.read_text(encoding="utf-8") if paths.gold.is_file() else None
+    test = paths.test.read_text(encoding="utf-8") if paths.test.is_file() else None
+    return Seed(
+        paths.patch.read_text(encoding="utf-8"),
+        lock[0],
+        lock[1],
+        gold,
+        test,
+    )
+
+
+def reverse_skip_reason(
+    smell: Smell,
+    instance_id: str,
+    patch_root: Path,
+    intro_root: Path,
+) -> str | None:
+    """None when a lighter tier still needs a container."""
+    previous: Paths | None = None
+    lock: tuple[str, str] | None = None
+    for tier in TIERS:
+        paths = output_paths(
+            smell_for_tier(smell, tier),
+            instance_id,
+            tier_root(patch_root, tier),
+            tier_root(intro_root, tier),
+        )
+        if previous is not None:
+            reason = tier_ready(previous)
+            if reason is None and lock is None:
+                reason = "previous tier JSON has no locked target"
+            if reason is not None:
+                return f"{tier}: {reason}"
+        if not paths.intro.exists():
+            return None
+        if lock is None:
+            lock = read_locked_target(paths.intro)
+        previous = paths
+    return "smell.json exists"
 
 
 def load_env_file(path: Path | None = None) -> None:
@@ -367,10 +488,49 @@ def atomic_write(path: Path, content: str) -> None:
         temporary.unlink(missing_ok=True)
 
 
+def patches_for_validation(
+    instance: dict,
+    refactored_gold: str | None,
+    refactored_test: str | None,
+    seed: Seed | None,
+) -> tuple[str, str]:
+    if refactored_gold is not None:
+        gold = refactored_gold
+    elif seed is not None and seed.gold is not None:
+        gold = seed.gold
+    else:
+        gold = instance.get("patch", "")
+    if refactored_test is not None:
+        test = refactored_test
+    elif seed is not None and seed.test is not None:
+        test = seed.test
+    else:
+        test = instance.get("test_patch", "")
+    return gold, test
+
+
 def build_prompt(
-    smell: Smell, instance_id: str, instance: dict, container: str
+    smell: Smell,
+    instance_id: str,
+    instance: dict,
+    container: str,
+    seed: Seed | None = None,
 ) -> str:
     smell_prompt = smell.prompt_path.read_text(encoding="utf-8")
+    metadata = instance
+    seed_note = ""
+    if seed is not None:
+        metadata = dict(instance)
+        if seed.gold is not None:
+            metadata["patch"] = seed.gold
+        if seed.test is not None:
+            metadata["test_patch"] = seed.test
+        seed_note = f"""
+- SEED_PATCH is `.smell-output/seed.patch`. Apply it onto the current base commit before any edit. Do not commit or stage.
+- LOCKED_TARGET_FILE is `{seed.target_file}`. LOCKED_TARGET_UNIT is `{seed.target_unit}`. Edit only that same target.
+- The scheduler still exports `git diff HEAD` against the original base commit. The saved patch must be this tier's complete diff, including the applied seed, not a delta against the seed.
+- If `.smell-output/seed-gold.patch` exists, it replaces the task gold patch for validation. If `.smell-output/seed-test.patch` exists, it replaces the task test patch. A missing file falls back to the task's original patch.
+"""
     return f"""{smell_prompt}
 
 # Automation contract (takes precedence for paths and final output)
@@ -399,11 +559,11 @@ directory. Its complete metadata is included at the end of this prompt.
 - Return SUCCESS only when a non-empty smell diff remains and all required checks
   pass. A normal inability to inject or validate must still return a complete JSON
   report.
-
+{seed_note}
 # Instance metadata
 
 ```json
-{json.dumps(instance, ensure_ascii=False, indent=2)}
+{json.dumps(metadata, ensure_ascii=False, indent=2)}
 ```
 """
 
@@ -703,9 +863,12 @@ def process_instance(
     instance: dict,
     smell: Smell,
     image: str,
+    seed: Seed | None = None,
+    patch_root: Path | None = None,
+    intro_root: Path | None = None,
 ) -> Result:
     instance_id = instance["instance_id"]
-    paths = output_paths(smell, instance_id)
+    paths = output_paths(smell, instance_id, patch_root, intro_root)
     if paths.intro.exists():
         return Result(instance_id, "SKIPPED", "smell.json exists")
 
@@ -742,10 +905,30 @@ def process_instance(
                 prepare_workspace(image, workspace)
                 output_dir = workspace / ".smell-output"
                 output_dir.mkdir()
+                if seed is not None:
+                    atomic_write(output_dir / "seed.patch", seed.patch)
+                    if seed.gold is not None:
+                        atomic_write(output_dir / "seed-gold.patch", seed.gold)
+                    if seed.test is not None:
+                        atomic_write(output_dir / "seed-test.patch", seed.test)
                 instance_log(instance_id, f"START_CONTAINER {container}")
                 start_validation_container(image, workspace, container)
                 started = True
-                prompt = build_prompt(smell, instance_id, instance, container)
+                base_head = None
+                if seed is not None:
+                    base_head = run_command(
+                        [
+                            "docker",
+                            "exec",
+                            container,
+                            "git",
+                            "-C",
+                            "/testbed",
+                            "rev-parse",
+                            "HEAD",
+                        ]
+                    ).stdout.strip()
+                prompt = build_prompt(smell, instance_id, instance, container, seed)
                 instance_log(
                     instance_id,
                     f"START_CODEX model={codex_model_description()}",
@@ -783,8 +966,9 @@ def process_instance(
                         workspace, output_dir, smell, instance_id, "test"
                     )
                 )
-                gold_patch = refactored_gold if refactored_gold is not None else instance.get("patch", "")
-                test_patch = refactored_test if refactored_test is not None else instance.get("test_patch", "")
+                gold_patch, test_patch = patches_for_validation(
+                    instance, refactored_gold, refactored_test, seed
+                )
                 had_refactored_gold = refactored_gold is not None
                 had_refactored_test = refactored_test is not None
                 cleanup_agent_output_dirs(workspace)
@@ -807,6 +991,24 @@ def process_instance(
                 instance_log(instance_id, f"DIFF_BYTES {len(diff.encode('utf-8'))}")
 
                 try:
+                    if base_head is not None:
+                        head = run_command(
+                            [
+                                "docker",
+                                "exec",
+                                container,
+                                "git",
+                                "-C",
+                                "/testbed",
+                                "rev-parse",
+                                "HEAD",
+                            ]
+                        ).stdout.strip()
+                        if head != base_head:
+                            raise ValueError(
+                                "HEAD moved after the seed was applied; smell.patch "
+                                "must be a full diff against the original base commit"
+                            )
                     instance_log(instance_id, "VALIDATE_DIFF")
                     validate_diff(container, diff, instance, gold_patch, test_patch)
                 except (CommandError, ValueError) as error:
@@ -835,6 +1037,51 @@ def process_instance(
                     restore_workspace_ownership(container, instance_id)
                     instance_log(instance_id, f"STOP_CONTAINER {container}")
                     run_command(["docker", "rm", "-f", container], check=False)
+
+
+def process_reverse_instance(
+    instance: dict,
+    smell: Smell,
+    image: str,
+    patch_root: Path,
+    intro_root: Path,
+) -> list[Result]:
+    instance_id = instance["instance_id"]
+    results: list[Result] = []
+    previous: Paths | None = None
+    lock: tuple[str, str] | None = None
+    for tier in TIERS:
+        tier_smell = smell_for_tier(smell, tier)
+        tier_patch_root = tier_root(patch_root, tier)
+        tier_intro_root = tier_root(intro_root, tier)
+        seed = None
+        if previous is not None:
+            reason = tier_ready(previous)
+            if reason is None and lock is None:
+                reason = "previous tier JSON has no locked target"
+            if reason is not None or lock is None:
+                detail = reason or "previous tier JSON has no locked target"
+                results.append(Result(instance_id, "SKIPPED", f"{tier}: {detail}"))
+                break
+            seed = load_seed(previous, lock)
+        result = process_instance(
+            instance,
+            tier_smell,
+            image,
+            seed,
+            tier_patch_root,
+            tier_intro_root,
+        )
+        detail = f"{tier}: {result.detail}" if result.detail else tier
+        results.append(Result(instance_id, result.status, detail))
+        previous = output_paths(
+            tier_smell, instance_id, tier_patch_root, tier_intro_root
+        )
+        if result.status not in {"SUCCESS", "SKIPPED"}:
+            break
+        if lock is None and previous.intro.is_file():
+            lock = read_locked_target(previous.intro)
+    return results
 
 
 def positive_int(value: str) -> int:
@@ -876,6 +1123,16 @@ def make_parser() -> argparse.ArgumentParser:
         default=None,
         help="only inject IDs listed in this file; skip IDs whose smell.json already exists",
     )
+    parser.add_argument(
+        "--reverse",
+        action="append",
+        choices=REVERSE_SMELLS,
+        default=None,
+        help=(
+            "chain S2, then S1, then S0 for this smell, seeding each lighter tier "
+            "from the previous patch. Repeatable. Smells not listed keep a single prompt run"
+        ),
+    )
     return parser
 
 
@@ -890,22 +1147,37 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"error: {error}", file=sys.stderr)
         return 2
     patch_root, intro_root = configure_output_roots(args.patch_root, args.intro_root)
+    reverse = smell.name in set(args.reverse or [])
+    if reverse:
+        try:
+            for tier in TIERS:
+                smell_for_tier(smell, tier)
+        except ValueError as error:
+            print(f"error: {error}", file=sys.stderr)
+            return 2
     temp_root = configure_temp_root()
     ids_desc = str(args.ids) if args.ids is not None else "-"
+    order_desc = " order=S2->S1->S0" if reverse else ""
     log(
         f"START smell={smell.name} prompt={smell.prompt_path} "
         f"agent={args.agent} instances={len(instances)} ids={ids_desc} "
         f"parallelism={args.parallelism} patch_root={patch_root} "
-        f"intro_root={intro_root} temp_root={temp_root}"
+        f"intro_root={intro_root} temp_root={temp_root}{order_desc}"
     )
 
     pending: list[str] = []
     results: list[Result] = []
     for instance_id in instances:
-        if output_paths(smell, instance_id).intro.exists():
-            result = Result(instance_id, "SKIPPED", "smell.json exists")
+        if reverse:
+            reason = reverse_skip_reason(smell, instance_id, patch_root, intro_root)
+        elif output_paths(smell, instance_id).intro.exists():
+            reason = "smell.json exists"
+        else:
+            reason = None
+        if reason is not None:
+            result = Result(instance_id, "SKIPPED", reason)
             results.append(result)
-            log(f"[{instance_id}] SKIPPED: smell.json exists")
+            log(f"[{instance_id}] SKIPPED: {reason}")
         else:
             pending.append(instance_id)
 
@@ -934,15 +1206,28 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         log(f"LAUNCH_WORKERS max_workers={args.parallelism}")
         with ThreadPoolExecutor(max_workers=args.parallelism) as executor:
-            futures = {
-                executor.submit(
-                    process_instance,
-                    instance_records[instance_id],
-                    smell,
-                    images[instance_id],
-                ): instance_id
-                for instance_id in pending
-            }
+            futures = {}
+            for instance_id in pending:
+                if reverse:
+                    futures[
+                        executor.submit(
+                            process_reverse_instance,
+                            instance_records[instance_id],
+                            smell,
+                            images[instance_id],
+                            patch_root,
+                            intro_root,
+                        )
+                    ] = instance_id
+                else:
+                    futures[
+                        executor.submit(
+                            process_instance,
+                            instance_records[instance_id],
+                            smell,
+                            images[instance_id],
+                        )
+                    ] = instance_id
             for future in as_completed(futures):
                 try:
                     result = future.result()
@@ -952,9 +1237,11 @@ def main(argv: Sequence[str] | None = None) -> int:
                     instance_log(instance_id, detail)
                     instance_log(instance_id, traceback.format_exc())
                     result = Result(instance_id, "ERROR", detail)
-                results.append(result)
-                suffix = f": {result.detail}" if result.detail else ""
-                log(f"[{result.instance_id}] {result.status}{suffix}")
+                produced = result if isinstance(result, list) else [result]
+                for item in produced:
+                    results.append(item)
+                    suffix = f": {item.detail}" if item.detail else ""
+                    log(f"[{item.instance_id}] {item.status}{suffix}")
     except KeyboardInterrupt:
         log("Interrupted; unfinished instances have no smell.json and will retry next run.")
         return 130

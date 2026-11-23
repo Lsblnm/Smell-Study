@@ -35,7 +35,7 @@ SWE-bench_Multilingual 原始任务包含 repository、base commit、issue descr
     },
     "LAA": {
       "度量定义": "目标方法访问的本类属性数占其访问的全部属性数的比例。",
-      "阈值": "0.2 < FDP <= 0.3"
+      "阈值": "0.2 < LAA <= 0.3"
     },
     "FDP": {
       "度量定义": "向目标方法提供外国数据的不同类数量。",

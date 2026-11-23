@@ -56,6 +56,9 @@ def test_configure_temp_root_points_python_tmpdir_at_big_disk(monkeypatch, tmp_p
         ("LongMethod.md", "LongMethod", "LM"),
         ("GodClass.md", "GodClass", "GC"),
         ("FeatureEnvy.md", "FeatureEnvy", "FE"),
+        ("CodeClone.md", "CodeClone", "CC"),
+        ("CyclicDependency.md", "CyclicDependency", "CD"),
+        ("CyclicDepenDency.md", "CyclicDependency", "CD"),
     ],
 )
 def test_resolve_smell(tmp_path, filename, name, abbreviation):
@@ -81,6 +84,7 @@ def test_parser_defaults_to_codex():
     assert default.patch_root is None
     assert default.intro_root is None
     assert default.ids is None
+    assert default.reverse is None
     selected = parser.parse_args(
         ["--agent", "codex", "prompts/FeatureEnvy.md", "ids-fe.txt", "5"]
     )
@@ -594,3 +598,209 @@ def test_lock_contention_does_not_start_worker(tmp_path, monkeypatch):
 
     assert result.status == "BUSY"
     assert calls == []
+
+
+def test_parser_reverse_is_repeatable_and_limited():
+    parser = inject_smells.make_parser()
+    args = parser.parse_args(
+        [
+            "--reverse",
+            "CyclicDependency",
+            "--reverse",
+            "CodeClone",
+            "prompts/S2/CyclicDepenDency.md",
+            "ids.txt",
+            "1",
+        ]
+    )
+    assert args.reverse == ["CyclicDependency", "CodeClone"]
+    with pytest.raises(SystemExit):
+        parser.parse_args(
+            ["--reverse", "DataClass", "prompts/S2/CyclicDepenDency.md", "ids.txt", "1"]
+        )
+
+
+def test_tier_root_replaces_tier_or_appends_it():
+    assert inject_smells.tier_root(Path("/data/smell-patch/S2"), "S1") == Path(
+        "/data/smell-patch/S1"
+    )
+    assert inject_smells.tier_root(Path("/data/smell-patch"), "S0") == Path(
+        "/data/smell-patch/S0"
+    )
+
+
+def _prompt_tree(tmp_path):
+    for tier in inject_smells.TIERS:
+        path = tmp_path / tier / "CodeClone.md"
+        path.parent.mkdir()
+        path.write_text(tier)
+    return inject_smells.Smell("CodeClone", "CC", tmp_path / "S2" / "CodeClone.md")
+
+
+def test_build_prompt_without_seed_omits_seed_contract(tmp_path):
+    prompt_path = tmp_path / "FeatureEnvy.md"
+    prompt_path.write_text("inject smell")
+    smell = inject_smells.Smell("FeatureEnvy", "FE", prompt_path)
+    prompt = inject_smells.build_prompt(
+        smell, "a__repo-1", {"instance_id": "a__repo-1", "patch": "gold"}, "box"
+    )
+    assert "SEED_PATCH" not in prompt
+    assert "LOCKED_TARGET" not in prompt
+    assert '"patch": "gold"' in prompt
+
+
+def test_build_prompt_passes_seed_lock_and_optional_patches(tmp_path):
+    prompt_path = tmp_path / "CodeClone.md"
+    prompt_path.write_text("inject smell")
+    smell = inject_smells.Smell("CodeClone", "CC", prompt_path)
+    seed = inject_smells.Seed("seed-diff", "src/A.java", "parse", gold="rewritten-gold")
+    prompt = inject_smells.build_prompt(
+        smell,
+        "a__repo-1",
+        {"instance_id": "a__repo-1", "patch": "original-gold", "test_patch": "original-test"},
+        "box",
+        seed,
+    )
+    assert "SEED_PATCH is `.smell-output/seed.patch`" in prompt
+    assert "LOCKED_TARGET_FILE is `src/A.java`" in prompt
+    assert "LOCKED_TARGET_UNIT is `parse`" in prompt
+    assert '"patch": "rewritten-gold"' in prompt
+    assert '"test_patch": "original-test"' in prompt
+
+
+def test_patches_for_validation_falls_back_per_file():
+    instance = {"patch": "original-gold", "test_patch": "original-test"}
+    seed = inject_smells.Seed("seed", "a.java", "parse", gold="seed-gold")
+    assert inject_smells.patches_for_validation(instance, None, None, None) == (
+        "original-gold",
+        "original-test",
+    )
+    assert inject_smells.patches_for_validation(instance, None, None, seed) == (
+        "seed-gold",
+        "original-test",
+    )
+    assert inject_smells.patches_for_validation(
+        instance, "new-gold", "new-test", seed
+    ) == ("new-gold", "new-test")
+
+
+def test_reverse_skip_reason_stops_after_failed_tier(tmp_path):
+    smell = _prompt_tree(tmp_path)
+    patch_root = tmp_path / "smell-patch" / "S2"
+    intro_root = tmp_path / "smell-patch-intro" / "S2"
+    paths = inject_smells.output_paths(
+        inject_smells.smell_for_tier(smell, "S2"),
+        "a__repo-1",
+        patch_root,
+        inject_smells.tier_root(intro_root, "S2"),
+    )
+    paths.intro.parent.mkdir(parents=True)
+    paths.intro.write_text('{"Status": "NOT_INJECTABLE"}')
+
+    reason = inject_smells.reverse_skip_reason(smell, "a__repo-1", patch_root, intro_root)
+
+    assert reason == "S1: previous tier NOT_INJECTABLE"
+
+
+def test_reverse_chain_seeds_next_tier_and_stops_on_failure(tmp_path, monkeypatch):
+    smell = _prompt_tree(tmp_path)
+    calls = []
+
+    def fake_process(instance, tier_smell, image, seed=None, patch_root=None, intro_root=None):
+        tier = tier_smell.prompt_path.parent.name
+        calls.append((tier, None if seed is None else (seed.target_file, seed.target_unit, seed.gold, seed.test)))
+        paths = inject_smells.output_paths(
+            tier_smell, instance["instance_id"], patch_root, intro_root
+        )
+        paths.intro.parent.mkdir(parents=True, exist_ok=True)
+        if tier == "S2":
+            paths.intro.write_text(
+                json.dumps(
+                    {"Status": "SUCCESS", "注入位置": {"目标文件": "src/A.java", "核心单元": "parse"}},
+                    ensure_ascii=False,
+                )
+            )
+            paths.patch.parent.mkdir(parents=True, exist_ok=True)
+            paths.patch.write_text("diff --git a/src/A.java b/src/A.java\n")
+            paths.gold.write_text("seed-gold\n")
+            return inject_smells.Result(instance["instance_id"], "SUCCESS")
+        paths.intro.write_text('{"Status": "FAILED"}')
+        return inject_smells.Result(instance["instance_id"], "FAILED", "broke")
+
+    monkeypatch.setattr(inject_smells, "process_instance", fake_process)
+    results = inject_smells.process_reverse_instance(
+        {"instance_id": "a__repo-1"},
+        smell,
+        "image",
+        tmp_path / "smell-patch" / "S2",
+        tmp_path / "smell-patch-intro" / "S2",
+    )
+
+    assert [item.status for item in results] == ["SUCCESS", "FAILED"]
+    assert calls == [
+        ("S2", None),
+        ("S1", ("src/A.java", "parse", "seed-gold\n", None)),
+    ]
+
+
+def test_reverse_does_not_start_after_not_injectable(tmp_path, monkeypatch):
+    smell = _prompt_tree(tmp_path)
+    calls = []
+
+    def fake_process(instance, tier_smell, image, seed=None, patch_root=None, intro_root=None):
+        calls.append(tier_smell.prompt_path.parent.name)
+        return inject_smells.Result(instance["instance_id"], "NOT_INJECTABLE", "no anchor")
+
+    monkeypatch.setattr(inject_smells, "process_instance", fake_process)
+    results = inject_smells.process_reverse_instance(
+        {"instance_id": "a__repo-1"},
+        smell,
+        "image",
+        tmp_path / "patches",
+        tmp_path / "intros",
+    )
+
+    assert calls == ["S2"]
+    assert results[0].status == "NOT_INJECTABLE"
+
+
+def test_seeded_run_writes_seed_files_and_rejects_moved_head(tmp_path, monkeypatch):
+    instance, smell, calls = prepare_worker(tmp_path, monkeypatch, "SUCCESS")
+    heads = iter(["abc", "def"])
+
+    def fake_run(command, *, input_text=None, check=True):
+        command = list(command)
+        calls.append(command)
+        stdout = ""
+        if command[-2:] == ["rev-parse", "HEAD"]:
+            stdout = next(heads) + "\n"
+        elif "--binary" in command:
+            stdout = "diff --git a/src/Main.java b/src/Main.java\n"
+        elif "--name-status" in command:
+            stdout = "M\tsrc/Main.java\n"
+        elif "--porcelain" in command:
+            stdout = " M src/Main.java\n"
+        return subprocess.CompletedProcess(command, 0, stdout, "")
+
+    seen = {}
+
+    def fake_codex(prompt, workspace, instance_id=None):
+        seen["prompt"] = prompt
+        seen["seed"] = (workspace / ".smell-output" / "seed.patch").read_text()
+        seen["gold"] = (workspace / ".smell-output" / "seed-gold.patch").read_text()
+        assert not (workspace / ".smell-output" / "seed-test.patch").exists()
+        return json.dumps({"Status": "SUCCESS"}, ensure_ascii=False)
+
+    monkeypatch.setattr(inject_smells, "run_command", fake_run)
+    monkeypatch.setattr(inject_smells, "run_codex_agent", fake_codex)
+    seed = inject_smells.Seed("seed-diff\n", "src/Main.java", "run", gold="gold-diff\n")
+
+    result = inject_smells.process_instance(instance, smell, "image:latest", seed)
+
+    paths = inject_smells.output_paths(smell, instance["instance_id"])
+    assert result.status == "FAILED"
+    assert "HEAD moved" in paths.intro.read_text()
+    assert not paths.patch.exists()
+    assert seen["seed"] == "seed-diff\n"
+    assert seen["gold"] == "gold-diff\n"
+    assert "LOCKED_TARGET_UNIT is `run`" in seen["prompt"]

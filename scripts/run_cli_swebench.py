@@ -55,6 +55,16 @@ REASONING_EFFORT = "high"
 ARTIFACT_SIZE_LIMIT = 1 << 20
 DIFF_SECTION = re.compile(r"^diff --git .*?(?=^diff --git |\Z)", re.M | re.S)
 TESTBED_WIPE_SCRIPT = "if [ -d /testbed ]; then find /testbed -mindepth 1 -delete; fi"
+GITHUB_HOSTS = (
+    "github.com",
+    "www.github.com",
+    "api.github.com",
+    "raw.githubusercontent.com",
+    "codeload.github.com",
+    "objects.githubusercontent.com",
+    "gist.github.com",
+)
+BASE_COMMIT_RE = re.compile(r"^[0-9a-fA-F]{7,64}$")
 INSTANCE_ARTIFACTS = (
     "prompt.txt",
     "trajectory.jsonl",
@@ -468,6 +478,87 @@ def wait_for_container(container: str) -> None:
         time.sleep(CONTAINER_POLL_SECONDS)
 
 
+def _warn(instance_id: str, message: str) -> None:
+    log(f"[{instance_id}] WARN {message}")
+
+
+def block_github_hosts(container: str, instance_id: str) -> None:
+    """Point GitHub hosts at loopback. A failure only warns."""
+    line = "127.0.0.1 " + " ".join(GITHUB_HOSTS)
+    script = (
+        "grep -qxF -- \"$LINE\" /etc/hosts 2>/dev/null || "
+        "printf '%s\\n' \"$LINE\" >> /etc/hosts\n"
+    )
+    try:
+        run_command(
+            ["docker", "exec", "-i", "-e", f"LINE={line}", container, "sh", "-s"],
+            input_text=script,
+        )
+    except Exception as error:
+        _warn(instance_id, f"github hosts not blocked: {error}")
+
+
+def history_strip_script(base_commit: str) -> str:
+    """Drop every ref that is not the current branch, then prune unreachable objects.
+
+    The script exits without changing refs when HEAD is not base_commit. It never
+    checks out or resets the work tree.
+    """
+    return f"""set -eu
+cd /testbed
+head=$(git rev-parse HEAD)
+if [ "$head" != "{base_commit}" ]; then
+  printf 'HEAD_MISMATCH %s\\n' "$head"
+  exit 0
+fi
+current=$(git symbolic-ref -q --short HEAD || true)
+git for-each-ref --format='%(refname)' | while IFS= read -r ref; do
+  [ -n "$ref" ] || continue
+  if [ -n "$current" ] && [ "$ref" = "refs/heads/$current" ]; then
+    continue
+  fi
+  git update-ref -d "$ref" || true
+done
+git remote | while IFS= read -r remote; do
+  [ -n "$remote" ] || continue
+  git remote remove "$remote" || true
+done
+rm -f .git/objects/info/alternates
+git reflog expire --expire=now --all
+git gc --prune=now >/dev/null
+fsck_out=$(git fsck --unreachable --no-reflogs --no-progress 2>&1 || true)
+if printf '%s\\n' "$fsck_out" | grep -E -q 'unreachable|dangling'; then
+  printf 'FSCK_UNREACHABLE\\n%s\\n' "$fsck_out"
+  exit 0
+fi
+printf 'HISTORY_STRIPPED\\n'
+"""
+
+
+def strip_future_history(container: str, instance_id: str, base_commit: str) -> None:
+    """Keep only ancestors of base_commit. Mismatch or failure does not stop the task."""
+    base_commit = base_commit.strip()
+    if not BASE_COMMIT_RE.fullmatch(base_commit):
+        _warn(instance_id, "base_commit missing or not a commit id; skip history strip")
+        return
+    try:
+        result = run_command(
+            ["docker", "exec", "-i", container, "sh", "-s"],
+            input_text=history_strip_script(base_commit),
+        )
+    except Exception as error:
+        _warn(instance_id, f"history strip failed: {error}")
+        return
+    text = result.stdout or ""
+    if "HEAD_MISMATCH" in text:
+        first = text.strip().splitlines()[0]
+        _warn(instance_id, f"{first}; skip history strip")
+    elif "FSCK_UNREACHABLE" in text:
+        _warn(instance_id, "history strip left unreachable objects")
+    elif "HISTORY_STRIPPED" not in text:
+        _warn(instance_id, "history strip finished without confirmation")
+
+
 def _apply_index_clause(container_patch: str) -> str:
     return (
         f"{{ git apply --index {container_patch} || "
@@ -709,6 +800,10 @@ def process_instance(
             start_validation_container(image, workspace, container)
             started = True
             wait_for_container(container)
+            strip_future_history(
+                container, instance_id, str(instance.get("base_commit") or "")
+            )
+            block_github_hosts(container, instance_id)
             test_patch = materialize_test_patch(
                 instance, Path(temporary_dir.name), smell_patch
             )

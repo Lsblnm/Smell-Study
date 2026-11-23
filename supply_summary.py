@@ -89,6 +89,63 @@ def copy_instances(src: str | Path, targets: list[str | Path]) -> None:
         )
 
 
+def subtract_instances(keep: str | Path, drop: str | Path) -> None:
+    """从 keep 中去掉 drop 里已有的实例：实例子目录、preds.json 键、summary.json 条目。"""
+    keep_dir = _as_path(keep)
+    drop_dir = _as_path(drop)
+    if not keep_dir.is_dir():
+        raise FileNotFoundError(f"目标目录不存在: {keep_dir}")
+    if not drop_dir.is_dir():
+        raise FileNotFoundError(f"被减目录不存在: {drop_dir}")
+
+    drop_ids = {inst.name for inst in _instance_dirs(drop_dir)}
+    drop_preds = _load_json(drop_dir / "preds.json", {})
+    if isinstance(drop_preds, dict):
+        drop_ids.update(drop_preds)
+
+    removed_dirs = skipped_dirs = 0
+    for instance_id in sorted(drop_ids):
+        dest = keep_dir / instance_id
+        if dest.is_dir():
+            shutil.rmtree(dest)
+            removed_dirs += 1
+        else:
+            skipped_dirs += 1
+
+    keep_preds_path = keep_dir / "preds.json"
+    keep_preds = _load_json(keep_preds_path, {})
+    removed_preds = 0
+    if isinstance(keep_preds, dict):
+        for instance_id in list(keep_preds):
+            if instance_id in drop_ids:
+                del keep_preds[instance_id]
+                removed_preds += 1
+        _dump_json(keep_preds_path, keep_preds)
+    elif keep_preds_path.is_file():
+        raise ValueError(f"{keep_preds_path} 不是 JSON 对象")
+
+    keep_summary_path = keep_dir / "summary.json"
+    removed_summary = 0
+    if keep_summary_path.is_file():
+        items = _load_json(keep_summary_path, [])
+        if not isinstance(items, list):
+            raise ValueError(f"{keep_summary_path} 不是 JSON 列表")
+        kept_items = []
+        for item in items:
+            instance_id = item.get("instance_id") if isinstance(item, dict) else None
+            if instance_id in drop_ids:
+                removed_summary += 1
+                continue
+            kept_items.append(item)
+        _dump_json(keep_summary_path, kept_items)
+
+    print(
+        f"[subtract] {keep_dir} - {drop_dir}: "
+        f"dirs removed={removed_dirs} missing={skipped_dirs}; "
+        f"preds removed={removed_preds}; summary removed={removed_summary}"
+    )
+
+
 def rebuild_summaries(root: str | Path) -> None:
     """清空并重建 root 下每个任务子目录的 summary.json。
 
@@ -136,15 +193,23 @@ def main() -> int:
     copy_p.add_argument("src", help="源任务目录，例如 traj_results/opencode/glm/None")
     copy_p.add_argument("targets", nargs="+", help="一个或多个目标任务目录")
 
+    sub_p = sub.add_parser("subtract", help="从 A 中去掉 B 已有的实例、preds、summary")
+    sub_p.add_argument("keep", help="要修改的目录 A，例如 traj_results/opencode/gpt/None-FE copy")
+    sub_p.add_argument("drop", help="被减去的目录 B，例如 traj_results/opencode/gpt/None")
+
     sum_p = sub.add_parser("summary", help="重建根目录下各任务子目录的 summary.json")
     sum_p.add_argument("root", help="例如 traj_results/opencode/glm")
 
     args = parser.parse_args()
     if args.cmd == "copy":
         copy_instances(args.src, args.targets)
+    elif args.cmd == "subtract":
+        subtract_instances(args.keep, args.drop)
     else:
         rebuild_summaries(args.root)
     return 0
+
+
 
 
 if __name__ == "__main__":
@@ -157,5 +222,15 @@ if __name__ == "__main__":
     #     "traj_results/opencode/glm/None-LM"
     # ],
     # )
+    # 从 A 中去掉 B 的实例（目录、preds.json、summary.json）
+    # subtract_instances(
+    #     "traj_results/opencode/gpt/None-FE copy",
+    #     "traj_results/opencode/gpt/None",
+    # )
     # 完善summary.json
-    rebuild_summaries("traj_results/opencode/glm")
+    # rebuild_summaries("traj_results/opencode/glm")
+    # 去掉None的实例、preds、summary.json
+    subtract_instances(
+        "traj_results/opencode/gpt/None-LM copy",
+        "traj_results/opencode/gpt/None",
+    )
