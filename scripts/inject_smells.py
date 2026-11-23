@@ -76,13 +76,15 @@ SMELLS = {
     "CyclicDependency.md": ("CyclicDependency", "CD"),
     "CyclicDepenDency.md": ("CyclicDependency", "CD"),
 }
-REVERSE_SMELLS = (
-    "LongMethod",
-    "FeatureEnvy",
-    "GodClass",
-    "CodeClone",
-    "CyclicDependency",
+REVERSE_CHOICES = (
+    "CodeClone-S0",
+    "CodeClone-S1",
+    "CodeClone-S2",
+    "CyclicDependency-S0",
+    "CyclicDependency-S1",
+    "CyclicDependency-S2",
 )
+PREVIOUS_TIER = {"S1": "S2", "S0": "S1"}
 TIERS = ("S2", "S1", "S0")
 TARGET_UNIT_KEYS = ("核心单元", "目标方法", "目标类")
 FINAL_STATUSES = {"SUCCESS", "FAILED", "NOT_INJECTABLE"}
@@ -356,34 +358,45 @@ def load_seed(paths: Paths, lock: tuple[str, str]) -> Seed:
     )
 
 
+def parse_reverse_request(token: str) -> tuple[str, str]:
+    smell_name, separator, tier = token.rpartition("-")
+    if separator != "-" or f"{smell_name}-{tier}" not in REVERSE_CHOICES:
+        choices = ", ".join(REVERSE_CHOICES)
+        raise ValueError(f"--reverse must be one of {choices}")
+    return smell_name, tier
+
+
 def reverse_skip_reason(
     smell: Smell,
     instance_id: str,
     patch_root: Path,
     intro_root: Path,
+    tier: str,
 ) -> str | None:
-    """None when a lighter tier still needs a container."""
-    previous: Paths | None = None
-    lock: tuple[str, str] | None = None
-    for tier in TIERS:
-        paths = output_paths(
-            smell_for_tier(smell, tier),
-            instance_id,
-            tier_root(patch_root, tier),
-            tier_root(intro_root, tier),
-        )
-        if previous is not None:
-            reason = tier_ready(previous)
-            if reason is None and lock is None:
-                reason = "previous tier JSON has no locked target"
-            if reason is not None:
-                return f"{tier}: {reason}"
-        if not paths.intro.exists():
-            return None
-        if lock is None:
-            lock = read_locked_target(paths.intro)
-        previous = paths
-    return "smell.json exists"
+    """None when this single tier still needs a container."""
+    paths = output_paths(
+        smell_for_tier(smell, tier),
+        instance_id,
+        tier_root(patch_root, tier),
+        tier_root(intro_root, tier),
+    )
+    if paths.intro.exists():
+        return f"{tier}: smell.json exists"
+    previous_tier = PREVIOUS_TIER.get(tier)
+    if previous_tier is None:
+        return None
+    previous = output_paths(
+        smell_for_tier(smell, previous_tier),
+        instance_id,
+        tier_root(patch_root, previous_tier),
+        tier_root(intro_root, previous_tier),
+    )
+    reason = tier_ready(previous)
+    if reason is None and read_locked_target(previous.intro) is None:
+        reason = "previous tier JSON has no locked target"
+    if reason is not None:
+        return f"{tier}: {reason}"
+    return None
 
 
 def load_env_file(path: Path | None = None) -> None:
@@ -1045,43 +1058,40 @@ def process_reverse_instance(
     image: str,
     patch_root: Path,
     intro_root: Path,
+    tier: str,
 ) -> list[Result]:
+    """Inject exactly one tier. S1 seeds from S2, S0 seeds from S1, S2 starts at base."""
     instance_id = instance["instance_id"]
-    results: list[Result] = []
-    previous: Paths | None = None
-    lock: tuple[str, str] | None = None
-    for tier in TIERS:
-        tier_smell = smell_for_tier(smell, tier)
-        tier_patch_root = tier_root(patch_root, tier)
-        tier_intro_root = tier_root(intro_root, tier)
-        seed = None
-        if previous is not None:
-            reason = tier_ready(previous)
-            if reason is None and lock is None:
-                reason = "previous tier JSON has no locked target"
-            if reason is not None or lock is None:
-                detail = reason or "previous tier JSON has no locked target"
-                results.append(Result(instance_id, "SKIPPED", f"{tier}: {detail}"))
-                break
-            seed = load_seed(previous, lock)
-        result = process_instance(
-            instance,
-            tier_smell,
-            image,
-            seed,
-            tier_patch_root,
-            tier_intro_root,
-        )
-        detail = f"{tier}: {result.detail}" if result.detail else tier
-        results.append(Result(instance_id, result.status, detail))
+    tier_smell = smell_for_tier(smell, tier)
+    tier_patch_root = tier_root(patch_root, tier)
+    tier_intro_root = tier_root(intro_root, tier)
+    seed = None
+    previous_tier = PREVIOUS_TIER.get(tier)
+    if previous_tier is not None:
         previous = output_paths(
-            tier_smell, instance_id, tier_patch_root, tier_intro_root
+            smell_for_tier(smell, previous_tier),
+            instance_id,
+            tier_root(patch_root, previous_tier),
+            tier_root(intro_root, previous_tier),
         )
-        if result.status not in {"SUCCESS", "SKIPPED"}:
-            break
-        if lock is None and previous.intro.is_file():
-            lock = read_locked_target(previous.intro)
-    return results
+        reason = tier_ready(previous)
+        lock = read_locked_target(previous.intro) if previous.intro.is_file() else None
+        if reason is None and lock is None:
+            reason = "previous tier JSON has no locked target"
+        if reason is not None or lock is None:
+            detail = reason or "previous tier JSON has no locked target"
+            return [Result(instance_id, "SKIPPED", f"{tier}: {detail}")]
+        seed = load_seed(previous, lock)
+    result = process_instance(
+        instance,
+        tier_smell,
+        image,
+        seed,
+        tier_patch_root,
+        tier_intro_root,
+    )
+    detail = f"{tier}: {result.detail}" if result.detail else tier
+    return [Result(instance_id, result.status, detail)]
 
 
 def positive_int(value: str) -> int:
@@ -1126,11 +1136,12 @@ def make_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--reverse",
         action="append",
-        choices=REVERSE_SMELLS,
+        choices=REVERSE_CHOICES,
         default=None,
         help=(
-            "chain S2, then S1, then S0 for this smell, seeding each lighter tier "
-            "from the previous patch. Repeatable. Smells not listed keep a single prompt run"
+            "inject only this smell and tier. CodeClone-S1 or CyclicDependency-S1 "
+            "uses an existing S2 SUCCESS patch as the seed and does not run S2 or S0. "
+            "S2 starts from the base commit. S0 uses only the S1 result"
         ),
     )
     return parser
@@ -1147,17 +1158,24 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"error: {error}", file=sys.stderr)
         return 2
     patch_root, intro_root = configure_output_roots(args.patch_root, args.intro_root)
-    reverse = smell.name in set(args.reverse or [])
-    if reverse:
+    reverse_tier = None
+    if args.reverse:
+        if len(args.reverse) != 1:
+            print("error: pass exactly one --reverse value", file=sys.stderr)
+            return 2
         try:
-            for tier in TIERS:
-                smell_for_tier(smell, tier)
+            reverse_smell, reverse_tier = parse_reverse_request(args.reverse[0])
+            if reverse_smell != smell.name:
+                raise ValueError(
+                    f"--reverse {args.reverse[0]} does not match prompt smell {smell.name}"
+                )
+            smell_for_tier(smell, reverse_tier)
         except ValueError as error:
             print(f"error: {error}", file=sys.stderr)
             return 2
     temp_root = configure_temp_root()
     ids_desc = str(args.ids) if args.ids is not None else "-"
-    order_desc = " order=S2->S1->S0" if reverse else ""
+    order_desc = f" order={reverse_tier}" if reverse_tier else ""
     log(
         f"START smell={smell.name} prompt={smell.prompt_path} "
         f"agent={args.agent} instances={len(instances)} ids={ids_desc} "
@@ -1168,8 +1186,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     pending: list[str] = []
     results: list[Result] = []
     for instance_id in instances:
-        if reverse:
-            reason = reverse_skip_reason(smell, instance_id, patch_root, intro_root)
+        if reverse_tier is not None:
+            reason = reverse_skip_reason(
+                smell, instance_id, patch_root, intro_root, reverse_tier
+            )
         elif output_paths(smell, instance_id).intro.exists():
             reason = "smell.json exists"
         else:
@@ -1208,7 +1228,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         with ThreadPoolExecutor(max_workers=args.parallelism) as executor:
             futures = {}
             for instance_id in pending:
-                if reverse:
+                if reverse_tier is not None:
                     futures[
                         executor.submit(
                             process_reverse_instance,
@@ -1217,6 +1237,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                             images[instance_id],
                             patch_root,
                             intro_root,
+                            reverse_tier,
                         )
                     ] = instance_id
                 else:

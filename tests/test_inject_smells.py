@@ -600,24 +600,27 @@ def test_lock_contention_does_not_start_worker(tmp_path, monkeypatch):
     assert calls == []
 
 
-def test_parser_reverse_is_repeatable_and_limited():
+def test_parser_reverse_accepts_only_smell_tier():
     parser = inject_smells.make_parser()
     args = parser.parse_args(
         [
             "--reverse",
-            "CyclicDependency",
-            "--reverse",
-            "CodeClone",
-            "prompts/S2/CyclicDepenDency.md",
+            "CodeClone-S1",
+            "prompts/S1/CodeClone.md",
             "ids.txt",
             "1",
         ]
     )
-    assert args.reverse == ["CyclicDependency", "CodeClone"]
-    with pytest.raises(SystemExit):
-        parser.parse_args(
-            ["--reverse", "DataClass", "prompts/S2/CyclicDepenDency.md", "ids.txt", "1"]
-        )
+    assert args.reverse == ["CodeClone-S1"]
+    assert inject_smells.parse_reverse_request("CyclicDependency-S0") == (
+        "CyclicDependency",
+        "S0",
+    )
+    for rejected in ("CodeClone", "DataClass", "LongMethod-S1", "CodeClone-S3"):
+        with pytest.raises(SystemExit):
+            parser.parse_args(
+                ["--reverse", rejected, "prompts/S2/CodeClone.md", "ids.txt", "1"]
+            )
 
 
 def test_tier_root_replaces_tier_or_appends_it():
@@ -697,34 +700,50 @@ def test_reverse_skip_reason_stops_after_failed_tier(tmp_path):
     paths.intro.parent.mkdir(parents=True)
     paths.intro.write_text('{"Status": "NOT_INJECTABLE"}')
 
-    reason = inject_smells.reverse_skip_reason(smell, "a__repo-1", patch_root, intro_root)
+    reason = inject_smells.reverse_skip_reason(
+        smell, "a__repo-1", patch_root, intro_root, "S1"
+    )
 
     assert reason == "S1: previous tier NOT_INJECTABLE"
+    assert (
+        inject_smells.reverse_skip_reason(
+            smell, "a__repo-1", patch_root, intro_root, "S2"
+        )
+        == "S2: smell.json exists"
+    )
 
 
-def test_reverse_chain_seeds_next_tier_and_stops_on_failure(tmp_path, monkeypatch):
+def _write_ready_tier(smell, instance_id, patch_root, intro_root, tier, status="SUCCESS"):
+    paths = inject_smells.output_paths(
+        inject_smells.smell_for_tier(smell, tier),
+        instance_id,
+        inject_smells.tier_root(patch_root, tier),
+        inject_smells.tier_root(intro_root, tier),
+    )
+    paths.intro.parent.mkdir(parents=True, exist_ok=True)
+    paths.intro.write_text(
+        json.dumps(
+            {"Status": status, "注入位置": {"目标文件": "src/A.java", "核心单元": "parse"}},
+            ensure_ascii=False,
+        )
+    )
+    if status == "SUCCESS":
+        paths.patch.parent.mkdir(parents=True, exist_ok=True)
+        paths.patch.write_text("diff --git a/src/A.java b/src/A.java\n")
+        paths.gold.write_text("seed-gold\n")
+    return paths
+
+
+def test_reverse_s1_uses_s2_seed_and_does_not_run_other_tiers(tmp_path, monkeypatch):
     smell = _prompt_tree(tmp_path)
+    patch_root = tmp_path / "smell-patch" / "S2"
+    intro_root = tmp_path / "smell-patch-intro" / "S2"
+    _write_ready_tier(smell, "a__repo-1", patch_root, intro_root, "S2")
     calls = []
 
     def fake_process(instance, tier_smell, image, seed=None, patch_root=None, intro_root=None):
         tier = tier_smell.prompt_path.parent.name
         calls.append((tier, None if seed is None else (seed.target_file, seed.target_unit, seed.gold, seed.test)))
-        paths = inject_smells.output_paths(
-            tier_smell, instance["instance_id"], patch_root, intro_root
-        )
-        paths.intro.parent.mkdir(parents=True, exist_ok=True)
-        if tier == "S2":
-            paths.intro.write_text(
-                json.dumps(
-                    {"Status": "SUCCESS", "注入位置": {"目标文件": "src/A.java", "核心单元": "parse"}},
-                    ensure_ascii=False,
-                )
-            )
-            paths.patch.parent.mkdir(parents=True, exist_ok=True)
-            paths.patch.write_text("diff --git a/src/A.java b/src/A.java\n")
-            paths.gold.write_text("seed-gold\n")
-            return inject_smells.Result(instance["instance_id"], "SUCCESS")
-        paths.intro.write_text('{"Status": "FAILED"}')
         return inject_smells.Result(instance["instance_id"], "FAILED", "broke")
 
     monkeypatch.setattr(inject_smells, "process_instance", fake_process)
@@ -732,19 +751,46 @@ def test_reverse_chain_seeds_next_tier_and_stops_on_failure(tmp_path, monkeypatc
         {"instance_id": "a__repo-1"},
         smell,
         "image",
-        tmp_path / "smell-patch" / "S2",
-        tmp_path / "smell-patch-intro" / "S2",
+        patch_root,
+        intro_root,
+        "S1",
     )
 
-    assert [item.status for item in results] == ["SUCCESS", "FAILED"]
-    assert calls == [
-        ("S2", None),
-        ("S1", ("src/A.java", "parse", "seed-gold\n", None)),
-    ]
+    assert [item.status for item in results] == ["FAILED"]
+    assert calls == [("S1", ("src/A.java", "parse", "seed-gold\n", None))]
+
+
+def test_reverse_s2_starts_from_base_and_s0_requires_s1(tmp_path, monkeypatch):
+    smell = _prompt_tree(tmp_path)
+    patch_root = tmp_path / "smell-patch" / "S2"
+    intro_root = tmp_path / "smell-patch-intro" / "S2"
+    calls = []
+
+    def fake_process(instance, tier_smell, image, seed=None, patch_root=None, intro_root=None):
+        calls.append((tier_smell.prompt_path.parent.name, seed))
+        return inject_smells.Result(instance["instance_id"], "SUCCESS")
+
+    monkeypatch.setattr(inject_smells, "process_instance", fake_process)
+    s2_results = inject_smells.process_reverse_instance(
+        {"instance_id": "a__repo-1"}, smell, "image", patch_root, intro_root, "S2"
+    )
+    s0_results = inject_smells.process_reverse_instance(
+        {"instance_id": "a__repo-1"}, smell, "image", patch_root, intro_root, "S0"
+    )
+
+    assert s2_results[0].status == "SUCCESS"
+    assert calls == [("S2", None)]
+    assert s0_results[0].status == "SKIPPED"
+    assert "previous tier has no smell.json" in s0_results[0].detail
 
 
 def test_reverse_does_not_start_after_not_injectable(tmp_path, monkeypatch):
     smell = _prompt_tree(tmp_path)
+    patch_root = tmp_path / "patches"
+    intro_root = tmp_path / "intros"
+    _write_ready_tier(
+        smell, "a__repo-1", patch_root, intro_root, "S2", status="NOT_INJECTABLE"
+    )
     calls = []
 
     def fake_process(instance, tier_smell, image, seed=None, patch_root=None, intro_root=None):
@@ -756,12 +802,14 @@ def test_reverse_does_not_start_after_not_injectable(tmp_path, monkeypatch):
         {"instance_id": "a__repo-1"},
         smell,
         "image",
-        tmp_path / "patches",
-        tmp_path / "intros",
+        patch_root,
+        intro_root,
+        "S1",
     )
 
-    assert calls == ["S2"]
-    assert results[0].status == "NOT_INJECTABLE"
+    assert calls == []
+    assert results[0].status == "SKIPPED"
+    assert results[0].detail == "S1: previous tier NOT_INJECTABLE"
 
 
 def test_seeded_run_writes_seed_files_and_rejects_moved_head(tmp_path, monkeypatch):
